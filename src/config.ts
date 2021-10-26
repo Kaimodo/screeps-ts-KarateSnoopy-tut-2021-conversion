@@ -11,6 +11,9 @@ export const ENABLE_DEBUG_MODE: boolean = true;
 
 export const FIRST_ROOM_NAME = Game.spawns.Spawn1.room.name;
 
+// SpawnName
+export const SPAWNNAME: string = 'Spawn1';
+
 //Debug Mode
 import { LogLevel } from "tools/logger/logLevel";
 

@@ -38,7 +38,7 @@ function _moveToHarvest(creep: Creep, target: Source): void
 {
     if (_tryHarvest(creep, target) === ERR_NOT_IN_RANGE)
     {
-        creep.moveTo(target.pos);
+        creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#99ff00'}});
     }
 }
 
@@ -62,6 +62,6 @@ function _moveToDropEnergy(creep: Creep, target: StructureSpawn | Structure): vo
 {
     if (_tryEnergyDropOff(creep, target) === ERR_NOT_IN_RANGE)
     {
-        creep.moveTo(target.pos);
+        creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#99ff00'}});
     }
 }

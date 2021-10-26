@@ -83,10 +83,9 @@ Profiler.registerFN(_buildMissingCreeps, '_buildMissingCreeps');
 function _spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[], role: string)
 {
     const uuid: number = Memory.uuid;
-    let status: number | string = spawn.canCreateCreep(bodyParts, undefined);
-    let status2: number | string = spawn.spawnCreep(bodyParts, 'TestName' , {dryRun: true});
-
-    const properties: { [key: string]: any } = {
+    // let status2: number | string = spawn.canCreateCreep(bodyParts, undefined);
+    let status: number | string = spawn.spawnCreep(bodyParts, 'status' , {dryRun: true});
+    let properties: any/*{ [key: string]: any }*/ = {
         role,
         room: spawn.room.name,
     };
@@ -95,15 +94,17 @@ function _spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[], role:
     if (status === OK)
     {
         Memory.uuid = uuid + 1;
-        const creepName: string = spawn.room.name + " - " + role + uuid;
+        let creepName: string = spawn.room.name + " - " + role + uuid;
 
         log.info("Started creating new creep: " + creepName);
         if (Config.ENABLE_DEBUG_MODE)
         {
             log.info("Body: " + bodyParts);
         }
+        //log.debug('BuildingStringProps: ' + JSON.stringify(properties));
 
-        status = spawn.spawnCreep(bodyParts, creepName, properties);
+        //status = spawn.spawnCreep(bodyParts, creepName, properties);
+        status = spawn.createCreep(bodyParts, creepName, properties);
 
         return _.isString(status) ? OK : status;
     } else

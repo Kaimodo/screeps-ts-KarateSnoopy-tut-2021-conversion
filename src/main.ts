@@ -14,6 +14,7 @@ import * as Tools from "tools/tools"
 import { ConsoleCommands } from "tools/consolecommands";
 
 import * as Config from "config";
+import {SPAWNNAME} from "config";
 
 import * as Creepmanager from "components/creepManager";
 
@@ -34,9 +35,25 @@ console.log(`[${Inscribe.color("Script Loading needed: ", "skyblue") + elapsedCP
 export const loop = ErrorMapper.wrapLoop(() => {
   Profiler.wrap(() => {
     global.cc = ConsoleCommands;
-    // console.log(`Current game tick is ${Game.time}`);
 
-    // Main Loop here
+    // Main Loop here:
+    // Check uuid and reset it if needed
+    if (!Memory.uuid || Memory.uuid > 1000){
+      Memory.uuid = 0;
+    }
+    // Visualize Spawn (From the Screeps-Tutorial Code)
+    if(Game.spawns[SPAWNNAME].spawning) {
+      // @ts-ignore: Object is possibly 'null'.
+      var spawningCreep = Game.creeps[Game.spawns[SPAWNNAME].spawning.name];
+      Memory.uuid++;
+      Game.spawns[SPAWNNAME].room.visual.text(
+          '🛠️' + spawningCreep.memory.role,
+          Game.spawns[SPAWNNAME].pos.x + 1,
+          Game.spawns[SPAWNNAME].pos.y,
+          {align: 'left', opacity: 0.8});
+    }
+
+    // Run Creepmanager for evers owned Room.
     for (const r in Game.rooms) {
       const room: Room = Game.rooms[r];
       Creepmanager.run(room);

@@ -1,5 +1,5 @@
 
-# My screeps AI
+# KarateSnoopy's Tutorial Conversion to 2021 (attempt)
 
 ![](https://screeps.com/images/logotype-animated.svg)
 
@@ -18,9 +18,19 @@ Logger from ([resir014](https://github.com/resir014/Stonehenge))
   ```
   in the Console.
 
-## This is all WIP and there will be no guarantee that commited code is working ;)
+# This is all WIP and there will be no guarantee that commited code is working ;)
+I own Screeps since 2017 but never rly digged into it. And as i Am not rly a Programmer it is
+hard for me to get into the Game. I found this great Tutorial:
+- ([KarateSnoopy](https://github.com/KarateSnoopy/LetsPlayScreeps))
+and this will be my attempt to understand and convert it to Screeps 2021.
+This will be much try and error, so i am not capable to do a video tut as he did. (mabe in the future i will)
+U can get the Code for his Episodes here:
+- (https://github.com/KarateSnoopy/LetsPlayScreeps/commits/master)
+and the Vidoe Tutorial is on Youtube here:
+- (https://www.youtube.com/watch?v=ldu_AI7t_5o&list=PLCRhjmqETCePxmtB2mKScrJB_SCAI6jqw&index=3)
+My Code will start on EP3 and i will try to Commit the Episodes like he did.
 
-#Helper
+## Helper
 +-------------------------------------------------------------------------------------+
 |R |  R       |  C |  S |  E  | R          | W  | T |  S |  L |  E |  L |  T |  O |  P|
 |C |  o       |  o |  p |  x  | a          | a  | o |  t |  i |  x |  a |  e |  b |  S|
@@ -40,6 +50,10 @@ Logger from ([resir014](https://github.com/resir014/Stonehenge))
 |8	|  99999999|	5	|  3 |  60 |	300000000| 1	|  6|	 1 |  6	|  1 |  10|  1 |  1	|  1|
 +-------------------------------------------------------------------------------------+
 */
+
+## Usefull Links
+(https://screeps.fandom.com/wiki/Creep#Body_Parts)
+(https://screepspl.us/services/creep-calculator/)
 
 # Origin from here
 

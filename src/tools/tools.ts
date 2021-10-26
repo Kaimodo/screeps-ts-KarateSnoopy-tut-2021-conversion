@@ -2,6 +2,9 @@ import * as Inscribe from "screeps-inscribe";
 import * as Config from "config";
 
 
+/**
+ * Get some basic Info about the game state
+ */
 export function log_info() {
   // Periodic logging of useful info
   if (Game.time % 100 === 0) {
@@ -11,6 +14,10 @@ export function log_info() {
     );
   }
 }
+
+/**
+ * Clear Memory of non Existant Creep
+ */
 export function ClearNonExistingCreeMemory() {
   if (Game.time % 100 === 0) {
     for (const name in Memory.creeps) {

@@ -1,3 +1,4 @@
+const startCpu = Game.cpu.getUsed()
 import { ErrorMapper } from "tools/ErrorMapper";
 
 import * as Profiler from "screeps-profiler";
@@ -5,42 +6,39 @@ import { USE_PROFILER } from "config";
 
 import * as Inscribe from "screeps-inscribe";
 
-import * as Logger from "tools/logger/logger";
-import {ENABLE_DEBUG_MODE} from "config";
+import { log } from "tools/logger/logger";
+import { ENABLE_DEBUG_MODE } from "config";
 
 import * as Tools from "tools/tools"
 
 import { ConsoleCommands } from "tools/consolecommands";
 
+import * as Config from "config";
+
 //New Script loaded
 console.log(`[${Inscribe.color("New Script loaded", "red")}]`);
 
-/*
-// Log Info
-if (Game.time % 25 === 0) {
-  Logger.log.info(Inscribe.color(room.name + "| E: "+ Game.rooms[room.name].energyAvailable + "| Har: " + SpawnManager.harvesters.length + "| Bui: "+ SpawnManager.builders.length + "| Upg: " + SpawnManager.upgraders.length +"|", "skyblue"));
-}
-*/
+// Check if Profiler is enabled in Config
 if (USE_PROFILER) {
-  Logger.log.info("Profiler an: "+ USE_PROFILER);
+  log.info("Profiler an: "+ USE_PROFILER);
   Profiler.enable();
 }
 
+// Get Script loading time
+const elapsedCPU = Game.cpu.getUsed() - startCpu;
+console.log(`[${Inscribe.color("Script Loading needed: ", "skyblue") + elapsedCPU.toFixed(2) + " Ticks"}]`);
 
-
-// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
-// This utility uses source maps to get the line numbers and file names of the original, TS source code
+// main Loop + ErrorMaper + Profiler starting here
 export const loop = ErrorMapper.wrapLoop(() => {
   Profiler.wrap(() => {
     global.cc = ConsoleCommands;
     console.log(`Current game tick is ${Game.time}`);
 
-    // Automatically delete memory of missing creeps
-    for (const name in Memory.creeps) {
-      if (!(name in Game.creeps)) {
-        delete Memory.creeps[name];
-      }
-    }
+    // Main Loop here
+
+
+    // Clear Memory and give short Game-Info
+    Tools.ClearNonExistingCreeMemory()
     Tools.log_info()
   });
 });

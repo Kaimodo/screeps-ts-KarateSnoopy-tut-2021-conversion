@@ -4,14 +4,19 @@ interface Memory {
     log: any;
 }
 
+// CreepMemory
 interface CreepMemory {
     role: string;
     room: string;
     working?: boolean;
 }
 
+// FlagMemory
 interface FlagMemory { [name: string]: any }
+
+// SpawnMemory
 interface SpawnMemory { [name: string]: any }
+// RoomMemory
 interface RoomMemory {
     [name: string]: any;
 }

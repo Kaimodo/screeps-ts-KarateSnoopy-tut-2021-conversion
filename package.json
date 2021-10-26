@@ -1,7 +1,7 @@
 {
-  "name": "Screeps21_kAI3",
+  "name": "screeps-ts-KarateSnoopy-tut-2021-conversion",
   "version": "1.0.0",
-  "description": "My Screeps AI",
+  "description": "Attempt of Converting KarateSnoopy's great Tutorial to 2021",
   "main": "index.js",
   "//": "If you add or change the names of destinations in screeps.json, make sure you update these scripts to reflect the changes",
   "scripts": {
@@ -21,14 +21,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kaimodo/Screeps21_kAI3.git"
+    "url": "git+https://github.com/Kaimodo/screeps-ts-KarateSnoopy-tut-2021-conversion.git"
   },
   "author": "",
   "license": "Unlicense",
   "bugs": {
-    "url": "https://github.com/Kaimodo/Screeps21_kAI3/issues"
+    "url": "https://github.com/Kaimodo/screeps-ts-KarateSnoopy-tut-2021-conversion/issues"
   },
-  "homepage": "https://github.com/Kaimodo/Screeps21_kAI3#readme",
+  "homepage": "https://github.com/Kaimodo/screeps-ts-KarateSnoopy-tut-2021-conversion#readme",
   "engines": {
     "node": "10.x || 12.x"
   },

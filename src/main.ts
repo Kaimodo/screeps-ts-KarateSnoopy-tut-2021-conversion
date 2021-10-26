@@ -15,6 +15,8 @@ import { ConsoleCommands } from "tools/consolecommands";
 
 import * as Config from "config";
 
+import * as Creepmanager from "components/creepManager";
+
 //New Script loaded
 console.log(`[${Inscribe.color("New Script loaded", "red")}]`);
 
@@ -32,10 +34,13 @@ console.log(`[${Inscribe.color("Script Loading needed: ", "skyblue") + elapsedCP
 export const loop = ErrorMapper.wrapLoop(() => {
   Profiler.wrap(() => {
     global.cc = ConsoleCommands;
-    console.log(`Current game tick is ${Game.time}`);
+    // console.log(`Current game tick is ${Game.time}`);
 
     // Main Loop here
-
+    for (const r in Game.rooms) {
+      const room: Room = Game.rooms[r];
+      Creepmanager.run(room);
+    }
 
     // Clear Memory and give short Game-Info
     Tools.ClearNonExistingCreeMemory()

@@ -27,7 +27,7 @@ This will be much try and error, so i am not capable to do a video tut as he did
 U can get the Code for his Episodes here:
 - (https://github.com/KarateSnoopy/LetsPlayScreeps/commits/master)
 and the Vidoe Tutorial is on Youtube here:
-- (https://www.youtube.com/watch?v=ldu_AI7t_5o&list=PLCRhjmqETCePxmtB2mKScrJB_SCAI6jqw&index=3)
+- ([Youtube-Video-List]https://www.youtube.com/watch?v=ldu_AI7t_5o&list=PLCRhjmqETCePxmtB2mKScrJB_SCAI6jqw&index=3)
 My Code will start on EP3 and i will try to Commit the Episodes like he did.
 
 ## Helper
@@ -53,6 +53,7 @@ My Code will start on EP3 and i will try to Commit the Episodes like he did.
 
 ## Usefull Links
 (https://screeps.fandom.com/wiki/Creep#Body_Parts)
+
 (https://screepspl.us/services/creep-calculator/)
 
 # Origin from here

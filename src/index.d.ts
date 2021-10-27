@@ -1,9 +1,10 @@
-// Game Memory
 interface Memory {
     uuid: number;
     log: any;
 }
 
+
+/*
 // FlagMemory
 interface FlagMemory { [name: string]: any }
 
@@ -13,6 +14,7 @@ interface SpawnMemory { [name: string]: any }
 interface RoomMemory {
     [name: string]: any;
 }
+*/
 
 
 

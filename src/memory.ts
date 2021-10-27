@@ -1,4 +1,6 @@
 // Memory and other Thimngs
+export const MemoryVersion = 4;
+
 export const enum CreepRoles {
     ROLE_UNASSINGED = 0,
     ROLE_ALL,
@@ -41,6 +43,56 @@ export function roleToString(job: CreepRoles): string {
     }
 }
 
+export interface MyPosition{
+    x: number;
+    y: number;
+}
+
+export interface PositionPlusTarget{
+    x: number;
+    y: number;
+    targetId: string;
+}
+
+export interface RoomPositionPlusTarget{
+    roomTarget: string;
+    x: number;
+    y: number;
+    targetId: string;
+}
+
+export interface MinerTask {
+    minerPosition: PositionPlusTarget;
+    assignedMinerName?: string;
+}
+
+export class RoomMemory {
+    public roomName: string;
+    public minerTasks!: MinerTask[];
+
+    public constructor(room: Room){
+        this.roomName = room.name;
+    }
+}
+
+export interface GameMemory {
+    memVersion: number | undefined;
+    uuid: number;
+    log: any;
+    creeps: {
+        [name: string]: any;
+    };
+    flags: {
+        [name: string]: any;
+    };
+    rooms: {
+        [name: string]: RoomMemory;
+    };
+    spawns: {
+        [name: string]: any;
+    }
+}
+
 export interface CreepMemory {
     role: CreepRoles;
     roleString: string;
@@ -54,4 +106,13 @@ export interface CreepMemory {
  */
 export function cm(creep: Creep): CreepMemory{
     return creep.memory as CreepMemory;
+}
+
+/**
+ * Cast? gameMemory. for better understanding i called it gm instead of m only.
+ * @param creep The given Creep
+ * @returns CreepMemory
+ */
+ export function gm(): GameMemory{
+    return Memory as any as GameMemory;
 }

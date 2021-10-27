@@ -38,18 +38,31 @@ export const loop = ErrorMapper.wrapLoop(() => {
     global.cc = ConsoleCommands;
 
     // Main Loop here:
-    // Check uuid and reset it if needed
-    if (!Memory.uuid || Memory.uuid > 1000){
-      Memory.uuid = 0;
+    // Check MemoryVersion and init it.
+    if(M.gm().memVersion == undefined
+      || M.gm().memVersion != M.MemoryVersion) {
+        Tools.memoryInit();
     }
-    // Run Creepmanager for evers owned Room.
-    for (const r in Game.rooms) {
-      const room: Room = Game.rooms[r];
-      RoomManager.run(room);
+    // Check uuid and reset it if needed
+    if (!M.gm().uuid || M.gm().uuid > 1000){
+      M.gm().uuid = 0;
     }
 
+    // Run RoomManager for every owned Room.
+    for (const r in Game.rooms) {
+      const room: Room = Game.rooms[r];
+      const rm: M.RoomMemory = M.gm().rooms[room.name];
+
+      if (rm === undefined){
+        log.info('Init Room Mem for' + room.name);
+        Memory.rooms[room.name] = {};
+        Tools.InitRoomMemory(room, room.name);
+      } else {
+        RoomManager.run(room, rm);
+      }
+    }
     // Clear Memory and give short Game-Info
     Tools.ClearNonExistingCreeMemory()
     Tools.log_info()
   });
-});
+})

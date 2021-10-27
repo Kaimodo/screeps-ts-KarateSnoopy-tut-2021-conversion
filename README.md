@@ -36,7 +36,8 @@ I had some trouble in the beginning. So take the Last EP 3 Commit. sry 4 that.
 
 ### Actual Progress:
 - EP3 -> done
-- EP4 -> WIP
+- EP4 -> done
+- EP5 -> WIP
 
 ## Helper
 +-------------------------------------------------------------------------------------+

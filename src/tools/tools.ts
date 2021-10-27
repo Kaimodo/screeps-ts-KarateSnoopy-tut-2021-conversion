@@ -1,5 +1,65 @@
 import * as Inscribe from "screeps-inscribe";
 import * as Config from "config";
+import * as M from "memory";
+import { log } from "./logger/logger";
+
+export function memoryInit(){
+  // Not sure how to solve the Delta Operand Error
+  // delete Memory.flags;
+  // delete Memory.spawns;
+  // delete Memory.creeps;
+  // delete Memory.rooms;
+
+
+  const mem = M.gm();
+  mem.creeps = {};
+  mem.rooms = {};
+
+  mem.uuid = 0;
+  mem.memVersion = M.MemoryVersion;
+  log.info("Initiating Game: Using MemVersion: " + mem.memVersion);
+}
+
+export function InitRoomMemory(room: Room, roomName: string) {
+  const rm: M.RoomMemory = M.gm().rooms[roomName];
+  rm.roomName = roomName;
+  rm.minerTasks = [];
+
+  const sources = room.find(FIND_SOURCES_ACTIVE);
+  for (const sourceName in sources) {
+    const source: Source = sources[sourceName] as Source;
+      const positions = [
+        [source.pos.x - 1, source.pos.y - 1],
+        [source.pos.x - 1, source.pos.y + 0],
+        [source.pos.x - 1, source.pos.y + 1],
+
+        [source.pos.x + 1, source.pos.y - 1],
+        [source.pos.x + 1, source.pos.y + 0],
+        [source.pos.x + 1, source.pos.y + 1],
+
+        [source.pos.x + 0, source.pos.y - 1],
+        [source.pos.x + 0, source.pos.y + 1]
+      ];
+    for (const pos of positions ){
+      const roomPos: RoomPosition | null = room.getPositionAt(pos[0] , pos[1]);
+        if (roomPos !== null){
+            const found: string = roomPos.lookFor(LOOK_TERRAIN) as any;
+            if (found != "wall") //  tslint:disable-line{
+              if(Config.ENABLE_DEBUG_MODE)log.debug("pos " + pos[0] + "," + pos[1] + "=" + found);
+                const minerPos: M.PositionPlusTarget ={
+                        targetId: source.id,
+                        x: pos[0],
+                        y: pos[1]
+                };
+                const minerTask: M.MinerTask = {
+                        minerPosition: minerPos
+                };
+
+                rm.minerTasks.push(minerTask);
+            }
+        }
+      }
+    }
 
 
 /**

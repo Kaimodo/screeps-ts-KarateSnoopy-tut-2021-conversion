@@ -13,8 +13,10 @@ export let miners: Creep[] = [];
  *
  * @param room The Room in which run is started
  */
-export function run(room: Room): void
+export function run(room: Room, rm: M.RoomMemory): void
 {
+    rm.roomName = 'Test: 3';
+
     _loadCreeps(room);
 
     _buildMissingCreeps(room);

@@ -4,13 +4,6 @@ interface Memory {
     log: any;
 }
 
-// CreepMemory
-interface CreepMemory {
-    role: string;
-    room: string;
-    working?: boolean;
-}
-
 // FlagMemory
 interface FlagMemory { [name: string]: any }
 
@@ -35,3 +28,4 @@ declare namespace NodeJS {
         };
     }
 }
+

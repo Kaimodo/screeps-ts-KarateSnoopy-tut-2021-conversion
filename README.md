@@ -34,6 +34,7 @@ Here you will get the Commits from me:
 ([Commits](https://github.com/Kaimodo/screeps-ts-KarateSnoopy-tut-2021-conversion/commits/main))
 I had some trouble in the beginning. So take the Last EP 3 Commit. sry 4 that.
 
+### Actual Progress: EP3
 
 ## Helper
 +-------------------------------------------------------------------------------------+

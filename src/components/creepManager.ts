@@ -85,10 +85,13 @@ function _spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[], role:
     const uuid: number = Memory.uuid;
     // let status2: number | string = spawn.canCreateCreep(bodyParts, undefined);
     let status: number | string = spawn.spawnCreep(bodyParts, 'status' , {dryRun: true});
-    let properties: any/*{ [key: string]: any }*/ = {
-        role,
-        room: spawn.room.name,
-    };
+
+    let properties: any = {
+        memory: {
+            role,
+            room: spawn.room.name
+        }
+    }
 
     status = _.isString(status) ? OK : status;
     if (status === OK)
@@ -103,8 +106,8 @@ function _spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[], role:
         }
         //log.debug('BuildingStringProps: ' + JSON.stringify(properties));
 
-        //status = spawn.spawnCreep(bodyParts, creepName, properties);
-        status = spawn.createCreep(bodyParts, creepName, properties);
+        status = spawn.spawnCreep(bodyParts, creepName, properties as SpawnOptions);
+        // status = spawn.createCreep(bodyParts, creepName, properties);
 
         return _.isString(status) ? OK : status;
     } else

@@ -1,5 +1,5 @@
 // Memory and other Thimngs
-export const MemoryVersion = 4;
+export const MemoryVersion = 8;
 
 export const enum CreepRoles {
     ROLE_UNASSINGED = 0,

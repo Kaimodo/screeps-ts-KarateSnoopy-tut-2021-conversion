@@ -28,39 +28,39 @@ export function InitRoomMemory(room: Room, roomName: string) {
   const sources = room.find(FIND_SOURCES_ACTIVE);
   for (const sourceName in sources) {
     const source: Source = sources[sourceName] as Source;
-      const positions = [
-        [source.pos.x - 1, source.pos.y - 1],
-        [source.pos.x - 1, source.pos.y + 0],
-        [source.pos.x - 1, source.pos.y + 1],
+    const positions = [
+      [source.pos.x - 1, source.pos.y - 1],
+      [source.pos.x - 1, source.pos.y + 0],
+      [source.pos.x - 1, source.pos.y + 1],
 
-        [source.pos.x + 1, source.pos.y - 1],
-        [source.pos.x + 1, source.pos.y + 0],
-        [source.pos.x + 1, source.pos.y + 1],
+      [source.pos.x + 1, source.pos.y - 1],
+      [source.pos.x + 1, source.pos.y + 0],
+      [source.pos.x + 1, source.pos.y + 1],
 
-        [source.pos.x + 0, source.pos.y - 1],
-        [source.pos.x + 0, source.pos.y + 1]
-      ];
+      [source.pos.x + 0, source.pos.y - 1],
+      [source.pos.x + 0, source.pos.y + 1]
+    ];
     for (const pos of positions ){
       const roomPos: RoomPosition | null = room.getPositionAt(pos[0] , pos[1]);
         if (roomPos !== null){
-            const found: string = roomPos.lookFor(LOOK_TERRAIN) as any;
-            if (found != "wall") //  tslint:disable-line{
-              if(Config.ENABLE_DEBUG_MODE)log.debug("pos " + pos[0] + "," + pos[1] + "=" + found);
-                const minerPos: M.PositionPlusTarget ={
-                        targetId: source.id,
-                        x: pos[0],
-                        y: pos[1]
-                };
-                const minerTask: M.MinerTask = {
-                        minerPosition: minerPos
-                };
+          const found: Terrain[] = roomPos.lookFor(LOOK_TERRAIN) as Terrain[];
+          if (found.toString() != "wall") {
+            if(Config.ENABLE_DEBUG_MODE)log.debug("pos " + pos[0] + "," + pos[1] + "=" + found);
+              const minerPos: M.PositionPlusTarget ={
+                      targetId: source.id,
+                      x: pos[0],
+                      y: pos[1]
+              };
+              const minerTask: M.MinerTask = {
+                      minerPosition: minerPos
+              };
 
-                rm.minerTasks.push(minerTask);
-            }
+              rm.minerTasks.push(minerTask);
+          }
         }
       }
     }
-
+  }
 
 /**
  * Get some basic Info about the game state

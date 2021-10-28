@@ -35,9 +35,12 @@ Here you will get the Commits from me:
 I had some trouble in the beginning. So take the Last EP 3 Commit. sry 4 that.
 
 ### Actual Progress:
-- EP3 -> done
-- EP4 -> done
-- EP5 -> WIP
+i had a lot of trouble so always use the last Commit of a specific Episode, sry 4 that one.
+- EP3 -> done  | 27.10.2021
+- EP4 -> done  | 28.10.2021
+- EP5 -> done  | 29.10.2021
+- EP6 -> WIP
+
 
 ## Helper
 +-------------------------------------------------------------------------------------+

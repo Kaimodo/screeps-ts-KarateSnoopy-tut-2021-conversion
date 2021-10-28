@@ -3,6 +3,9 @@ import * as Config from "config";
 import * as M from "memory";
 import { log } from "./logger/logger";
 
+/**
+ * Initiate GameMemory
+ */
 export function memoryInit(){
   // Not sure how to solve the Delta Operand Error
   // delete Memory.flags;
@@ -10,20 +13,25 @@ export function memoryInit(){
   // delete Memory.creeps;
   // delete Memory.rooms;
 
-
   const mem = M.gm();
   mem.creeps = {};
   mem.rooms = {};
-
   mem.uuid = 0;
   mem.memVersion = M.MemoryVersion;
   log.info("Initiating Game: Using MemVersion: " + mem.memVersion);
 }
 
+/**
+ * Initiate the Room. and get Energy-Mining-Positions from SOurces
+ * @param room The given Room
+ * @param roomName The Name of the Room
+ */
 export function InitRoomMemory(room: Room, roomName: string) {
   const rm: M.RoomMemory = M.gm().rooms[roomName];
   rm.roomName = roomName;
   rm.minerTasks = [];
+
+  let taskIdNum = 0;
 
   const sources = room.find(FIND_SOURCES_ACTIVE);
   for (const sourceName in sources) {
@@ -45,14 +53,16 @@ export function InitRoomMemory(room: Room, roomName: string) {
         if (roomPos !== null){
           const found: Terrain[] = roomPos.lookFor(LOOK_TERRAIN) as Terrain[];
           if (found.toString() != "wall") {
-            if(Config.ENABLE_DEBUG_MODE)log.debug("pos " + pos[0] + "," + pos[1] + "=" + found);
+            if(Config.ENABLE_DEBUG_MODE)log.debug("MinerTask-Pos: " + pos[0] + "," + pos[1] + "=" + found);
               const minerPos: M.PositionPlusTarget ={
                       targetId: source.id,
                       x: pos[0],
                       y: pos[1]
               };
+              taskIdNum++;
               const minerTask: M.MinerTask = {
-                      minerPosition: minerPos
+                      minerPosition: minerPos,
+                      taskId: taskIdNum
               };
 
               rm.minerTasks.push(minerTask);
@@ -86,6 +96,25 @@ export function ClearNonExistingCreeMemory() {
         console.log(`[${Inscribe.color("Clearing non-existing creep memory: " + name, "red")}]`);
       }
     }
+  }
+}
+
+/**
+ * Check if Assigned Tasks have no Miner
+ * @param rm The RoomMemory
+ */
+export function cleanupAssignedMiners(rm: M.RoomMemory){
+  for (const task of rm.minerTasks){
+      if(task.assignedMinerName !== undefined){
+          const creep = Game.creeps[task.assignedMinerName];
+          if(creep as any === undefined){
+            log.info(`Clearing minning task assigned to ${task.assignedMinerName}`);
+            task.assignedMinerName = undefined;
+          } else if(M.cm(creep).role !== M.CreepRoles.ROLE_MINER){
+            task.assignedMinerName = undefined;
+            log.info(`Clearing minning task assigned to ${task.assignedMinerName}`);
+          }
+      }
   }
 }
 

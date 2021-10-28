@@ -40,7 +40,7 @@ import { LogLevel } from "tools/logger/logLevel";
  /**
   * Maximum padding for source links (for aligning log output).
   */
- export const LOG_MAX_PAD: number = 100;
+ export const LOG_MAX_PAD: number = 25;
 
   /**
  * VSC location, used to create links back to source.

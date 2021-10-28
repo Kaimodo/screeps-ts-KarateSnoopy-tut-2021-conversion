@@ -60,6 +60,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
       } else {
         RoomManager.run(room, rm);
       }
+      if (Game.time % 10 === 0){
+        Tools.cleanupAssignedMiners(rm)
+      }
     }
     // Clear Memory and give short Game-Info
     Tools.ClearNonExistingCreeMemory()

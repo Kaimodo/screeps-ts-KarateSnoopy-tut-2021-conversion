@@ -1,5 +1,5 @@
 // Memory and other Thimngs
-export const MemoryVersion = 8;
+export const MemoryVersion = 10;
 
 export const enum CreepRoles {
     ROLE_UNASSINGED = 0,
@@ -62,6 +62,7 @@ export interface RoomPositionPlusTarget{
 }
 
 export interface MinerTask {
+    taskId: number;
     minerPosition: PositionPlusTarget;
     assignedMinerName?: string;
 }
@@ -97,10 +98,11 @@ export interface CreepMemory {
     role: CreepRoles;
     roleString: string;
     log: boolean;
+    assignedMineTaskId?: number
 }
 
 /**
- *
+ * Cast? CreepMemory
  * @param creep The given Creep
  * @returns CreepMemory
  */
@@ -111,7 +113,7 @@ export function cm(creep: Creep): CreepMemory{
 /**
  * Cast? gameMemory. for better understanding i called it gm instead of m only.
  * @param creep The given Creep
- * @returns CreepMemory
+ * @returns GameMemory
  */
  export function gm(): GameMemory{
     return Memory as any as GameMemory;

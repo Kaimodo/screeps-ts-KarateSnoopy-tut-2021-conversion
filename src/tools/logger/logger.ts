@@ -212,6 +212,8 @@ export class Log {
   private adjustFileLine(visibleText: string, line: string): string {
     const newPad = Math.max(visibleText.length, this._maxFileString);
     this._maxFileString = Math.min(newPad, Config.LOG_MAX_PAD);
+    // Geändert
+    this._maxFileString = Config.LOG_MAX_PAD;
 
     return `|${_.padRight(line, line.length + this._maxFileString - visibleText.length, " ")}|`;
   }

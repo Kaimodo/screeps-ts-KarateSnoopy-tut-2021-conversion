@@ -1,3 +1,4 @@
+// EP6_1733
 const startCpu = Game.cpu.getUsed()
 import { ErrorMapper } from "tools/ErrorMapper";
 
@@ -21,6 +22,7 @@ import * as M from "memory";
 
 //New Script loaded
 console.log(`[${Inscribe.color("New Script loaded", "red")}]`);
+// log.info(`[${Inscribe.color("TEXT HERE", "red")}]`)
 
 // Check if Profiler is enabled in Config
 if (USE_PROFILER) {
@@ -39,8 +41,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     // Main Loop here:
     // Check MemoryVersion and init it.
-    if(M.gm().memVersion == undefined
-      || M.gm().memVersion != M.MemoryVersion) {
+    if(M.gm().memVersion === undefined
+      || M.gm().memVersion !== M.MemoryVersion) {
         Tools.memoryInit();
     }
     // Check uuid and reset it if needed

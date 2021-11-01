@@ -8,10 +8,18 @@ import { log } from "./logger/logger";
  */
 export function memoryInit(){
   // Not sure how to solve the Delta Operand Error
+  // Memory.flags = _.omit(Memory, 'flags');
+  // Memory.spawns = _.omit(Memory, 'spawns');
+  // Memory.creeps = _.omit(Memory, 'creeps');
+  // Memory.rooms = _.omit(Memory, 'rooms');
   // delete Memory.flags;
   // delete Memory.spawns;
   // delete Memory.creeps;
   // delete Memory.rooms;
+  Memory.flags = {};
+  Memory.spawns = {};
+  Memory.creeps = {};
+  Memory.rooms = {};
 
   const mem = M.gm();
   mem.creeps = {};
@@ -30,6 +38,7 @@ export function InitRoomMemory(room: Room, roomName: string) {
   const rm: M.RoomMemory = M.gm().rooms[roomName];
   rm.roomName = roomName;
   rm.minerTasks = [];
+  rm.desiredBuilders = Config.MAX_BUILDERS;
 
   let taskIdNum = 0;
 

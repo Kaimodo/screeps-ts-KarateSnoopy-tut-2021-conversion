@@ -1,10 +1,10 @@
 // Memory and other Thimngs
-export const MemoryVersion = 10;
+export const MemoryVersion = 24;
 
 export const enum CreepRoles {
     ROLE_UNASSINGED = 0,
     ROLE_ALL,
-    ROLE_WORKER,
+    ROLE_BUILDER,
     ROLE_MINER,
     ROLE_MINERHAULER,
     ROLE_HEALER,
@@ -25,7 +25,7 @@ export const enum CreepRoles {
  */
 export function roleToString(job: CreepRoles): string {
     switch(job){
-        case CreepRoles.ROLE_WORKER: return 'ROLE_WORKER';
+        case CreepRoles.ROLE_BUILDER: return 'ROLE_BUILDER';
         case CreepRoles.ROLE_MINER: return 'ROLE_MINER';
         case CreepRoles.ROLE_MINERHAULER: return 'ROLE_MINERHAULER';
         case CreepRoles.ROLE_HEALER: return 'ROLE_HEALER';
@@ -70,6 +70,7 @@ export interface MinerTask {
 export class RoomMemory {
     public roomName: string;
     public minerTasks!: MinerTask[];
+    public desiredBuilders?: number;
 
     public constructor(room: Room){
         this.roomName = room.name;
@@ -98,7 +99,8 @@ export interface CreepMemory {
     role: CreepRoles;
     roleString: string;
     log: boolean;
-    assignedMineTaskId?: number
+    assignedMineTaskId?: number;
+    gathering: boolean;
 }
 
 /**

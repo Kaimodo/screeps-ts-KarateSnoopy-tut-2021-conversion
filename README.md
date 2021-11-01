@@ -13,36 +13,56 @@ Logger from ([resir014](https://github.com/resir014/Stonehenge))
 
   Commands are defined in Consolecommands.ts
   Test if they work by typing in
+
   ```bash
   cc.test()
   ```
+
   in the Console.
 
 # This is all WIP and there will be no guarantee that commited code is working ;)
+
 I own Screeps since 2017 but never rly digged into it. And as i Am not rly a Programmer it is
 hard for me to get into the Game. I found this great Tutorial:
+
 - ([KarateSnoopy](https://github.com/KarateSnoopy/LetsPlayScreeps))
+
 and this will be my attempt to understand and convert it to Screeps 2021.
 This will be much try and error, so i am not capable to do a video tut as he did. (mabe in the future i will)
 U can get the Code for his Episodes here:
-- (https://github.com/KarateSnoopy/LetsPlayScreeps/commits/master)
+
+- ([KarateSnoopy's Commits](https://github.com/KarateSnoopy/LetsPlayScreeps/commits/master)
+
 and the Vidoe Tutorial is on Youtube here:
+
 - ([Youtube-Video-List](https://www.youtube.com/watch?v=ldu_AI7t_5o&list=PLCRhjmqETCePxmtB2mKScrJB_SCAI6jqw&index=3))
+
 My Code will start on EP3 and i will try to Commit the Episodes like he did.
 
 Here you will get the Commits from me:
 ([Commits](https://github.com/Kaimodo/screeps-ts-KarateSnoopy-tut-2021-conversion/commits/main))
-I had some trouble in the beginning. So take the Last EP 3 Commit. sry 4 that.
 
-### Actual Progress:
+## Actual Progress
+
 i had a lot of trouble so always use the last Commit of a specific Episode, sry 4 that one.
+
 - EP3 -> done  | 27.10.2021
 - EP4 -> done  | 28.10.2021
 - EP5 -> done  | 29.10.2021
-- EP6 -> WIP
+- EP6 -> done  | 01.11.2021
+- EP7 -> WIP
 
+### Info Current Project Issues/errors
 
-## Helper
+- EP-6 End: The Code for calculating the ammount of energy a Creep is carriying was wrong. It's fixed now. Behaviour was
+  that Creeps only mined 4% Energy and ran away afterwards.
+- EP-6 End: I still don't know how to get around the delta operand error in memoryInit(). Loading a new Mem version seems not to work
+  properly. Workaround for now: open the Creeps Memory and append a new Property giving them: role:3  for Miners and role:2 for Builders.
+  In that way the CrepsMemory will fix it self afterwars.
+  After some more Try and Error it seems that it works for now. Will keep an eye on it.
+
+### Helper
+
 +-------------------------------------------------------------------------------------+
 |R |  R       |  C |  S |  E  | R          | W  | T |  S |  L |  E |  L |  T |  O |  P|
 |C |  o       |  o |  p |  x  | a          | a  | o |  t |  i |  x |  a |  e |  b |  S|
@@ -64,6 +84,7 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 */
 
 ## Usefull Links
+
 (https://screeps.fandom.com/wiki/Creep#Body_Parts)
 
 (https://screepspl.us/services/creep-calculator/)
@@ -108,7 +129,7 @@ You can use `-cw` instead of `-c` to automatically re-run when your source code 
 
 Finally, there are also NPM scripts that serve as aliases for these commands in `package.json` for IDE integration. Running `npm run push-main` is equivalent to `rollup -c --environment DEST:main`, and `npm run watch-sim` is equivalent to `rollup -cw --dest sim`.
 
-#### Important! To upload code to a private server, you must have [screepsmod-auth](https://github.com/ScreepsMods/screepsmod-auth) installed and configured!
+#### Important! To upload code to a private server, you must have [screepsmod-auth](https://github.com/ScreepsMods/screepsmod-auth) installed and configured
 
 ## Typings
 

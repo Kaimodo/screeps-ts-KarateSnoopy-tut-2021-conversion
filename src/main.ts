@@ -1,4 +1,4 @@
-// EP6_1733
+// EP8 start
 const startCpu = Game.cpu.getUsed()
 import { ErrorMapper } from "tools/ErrorMapper";
 

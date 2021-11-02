@@ -1,6 +1,8 @@
 import {log} from '../tools/logger/logger';
 import * as M from "../memory";
 import * as Builder from "./builder";
+import * as RoomManager from "./roomManager";
+import {ENABLE_DEBUG_MODE} from "../config";
 
 /**
  * run: Main Miner Function called by The RoomManager
@@ -31,7 +33,7 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
         // store.getFreeCapacity(RESOURCE_ENERGY) < creep.store.getCapacity()
         if (!creepMem.gathering) {
             // log.info(`${creep.name}: Miner has ${creep.store[RESOURCE_ENERGY]} and is working on dropping off`);
-            dropOffEnergy(room, creep);
+            dropOffEnergy(room, creep, rm);
         } else {
             // const energySource = creep.room.find(FIND_SOURCES_ACTIVE)[0];
             // log.info(`${creep.name}: Miner is moving to Mine`);
@@ -78,11 +80,52 @@ function harvestEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory): void 
 }
 
 /**
+ *
+ * @param room The given Room to build in
+ * @param creep The Creep which gets the building order
+ * @param rm The RoomMemory of the Room
+ * @returns True if building is possible
+ */
+function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
+
+    // Find Container-Construction Sites
+    const targets = room.find(FIND_CONSTRUCTION_SITES, {
+        filter: (constructionSite: ConstructionSite) => {
+            return (constructionSite.structureType === STRUCTURE_CONTAINER);
+        }
+    }) as ConstructionSite[];
+    if(targets.length > 0){
+        const status = creep.build(targets[0]);
+        if(status === ERR_NOT_IN_RANGE){
+            const moveCode = creep.moveTo(targets[0], {visualizePathStyle: {stroke: '0000ff'}});
+            if(moveCode !== OK && moveCode !== ERR_TIRED){
+                log.error(`move and got ${moveCode}`);
+            }
+        }
+        return true;
+    } else {
+        // Do I have all construction sites for all the containers?
+        // log.debug("RMConPos: " + JSON.stringify(rm.containerPositions));
+        if(ENABLE_DEBUG_MODE) log.debug("RoomManager.containers.length: " + RoomManager.containers.length + " | rm.containerPositions.length: " + rm.containerPositions.length);
+        if(RoomManager.containers.length !== rm.containerPositions.length){
+            _.each(rm.containerPositions, (containerPos: M.PositionPlusTarget) => {
+                log.info(`Creating container at ${containerPos.x}, ${containerPos.y}`);
+                const roomPos: RoomPosition | null = room.getPositionAt(containerPos.x, containerPos.y);
+                if (roomPos !== null) {
+                    creep.room.createConstructionSite(roomPos, STRUCTURE_CONTAINER);
+                }
+            });
+        }
+        return false;
+    }
+}
+
+/**
  * dropOffEnergy carried
  * @param room The Room in which the Miner is working
  * @param creep The given Creep
  */
-function dropOffEnergy(room: Room,creep: Creep): void {
+function dropOffEnergy(room: Room,creep: Creep, rm: M.RoomMemory): void {
     const targets: Structure[] = creep.room.find(FIND_STRUCTURES, {
         filter: (structure: Structure) => {
             if (structure.structureType === STRUCTURE_EXTENSION){
@@ -109,7 +152,7 @@ function dropOffEnergy(room: Room,creep: Creep): void {
             let isBuilding: boolean = false;
             // log.info("RCL-Down: " + room.controller.ticksToDowngrade);
             if (room.controller.ticksToDowngrade > 1000) {
-                isBuilding = Builder.buildIfCan(room, creep);
+                isBuilding = buildIfCan(room, creep, rm);
             }
             if (!isBuilding) {
                 const status = creep.upgradeController(room.controller);

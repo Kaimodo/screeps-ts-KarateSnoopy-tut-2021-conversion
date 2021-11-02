@@ -1,5 +1,13 @@
 // Memory and other Thimngs
-export const MemoryVersion = 24;
+export let MemoryVersion = 35;
+
+export function setMemVersion(value: number): void {
+    MemoryVersion = value;
+  }
+
+  export function getMemVersion(): number {
+    return MemoryVersion;
+  }
 
 export const enum CreepRoles {
     ROLE_UNASSINGED = 0,
@@ -70,19 +78,30 @@ export interface MinerTask {
 export class RoomMemory {
     public roomName: string;
     public minerTasks!: MinerTask[];
-    public desiredBuilders?: number;
+    public desiredBuilders!: number;
+    public energySources!: PositionPlusTarget[];
+    public containerPositions!: PositionPlusTarget[];
 
     public constructor(room: Room){
         this.roomName = room.name;
     }
 }
 
+export interface NodeChoice
+{
+    x: number;
+    y: number;
+    dist: number;
+}
 export interface GameMemory {
     memVersion: number | undefined;
     uuid: number;
     log: any;
     creeps: {
         [name: string]: any;
+    };
+    powerCreeps: {
+        [name: string]: PowerCreepMemory
     };
     flags: {
         [name: string]: any;

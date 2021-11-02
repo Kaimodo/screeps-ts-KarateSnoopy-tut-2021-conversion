@@ -11,6 +11,8 @@ export let creeps: Creep[];
 export let creepCount: number = 0;
 export let miners: Creep[] = [];
 export let builders: Creep[] = [];
+export let structures: Structure[] = [];
+export let containers: StructureContainer[] = [];
 
 /**
  * The Main Function in every Room witch is executed
@@ -19,7 +21,6 @@ export let builders: Creep[] = [];
  */
 export function run(room: Room, rm: M.RoomMemory): void
 {
-    //rm.roomName = 'Test: 3';
 
     loadCreeps(room, rm);
 
@@ -51,6 +52,8 @@ function loadCreeps(room: Room, rm: M.RoomMemory)
     creepCount = _.size(creeps);
     miners = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_MINER);
     builders = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
+    structures = room.find<StructureContainer>(FIND_MY_STRUCTURES);
+    containers = _.filter(structures, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
 
     log.info(`[${Inscribe.color(`Mem: ${M.gm().memVersion}/${M.MemoryVersion} | M: ${miners.length}/${rm.minerTasks.length} | B: ${builders.length}/${rm.desiredBuilders}`, "skyblue")}]`);
 }
@@ -99,7 +102,7 @@ function buildMissingCreeps(room: Room, rm: M.RoomMemory)
         tryToSpawnCreep(inactiveSpawns, bodyParts, M.CreepRoles.ROLE_MINER);
     }
     if (miners.length === rm.minerTasks.length){
-        if(rm.desiredBuilders){
+        if(containers.length === rm.energySources.length){
             if(builders.length < rm.desiredBuilders){
                 bodyParts = [WORK, WORK, CARRY, MOVE];
                 tryToSpawnCreep(inactiveSpawns, bodyParts, M.CreepRoles.ROLE_BUILDER);
@@ -118,7 +121,7 @@ Profiler.registerFN(buildMissingCreeps, '_buildMissingCreeps');
  */
 function spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[], role: M.CreepRoles): number
 {
-    const uuid: number = Memory.uuid;
+    const uuid: number = M.gm().uuid
     let status: number | string = spawn.spawnCreep(bodyParts, 'status' , {dryRun: true});
 
 
@@ -134,7 +137,7 @@ function spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[], role: 
     status = _.isString(status) ? OK : status;
     if (status === OK)
     {
-        Memory.uuid = uuid + 1;
+        M.gm().uuid = uuid + 1;
         let splitName: string = properties.memory.roleString;
         const [prefix, roleName] = splitName.split('_');
 

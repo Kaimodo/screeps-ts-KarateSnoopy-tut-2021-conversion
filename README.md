@@ -20,7 +20,7 @@ Logger from ([resir014](https://github.com/resir014/Stonehenge))
 
   in the Console.
 
-# This is all WIP and there will be no guarantee that commited code is working ;)
+# This is all WIP and there will be no guarantee that the commited code is working ;)
 
 I own Screeps since 2017 but never rly digged into it. And as i Am not rly a Programmer it is
 hard for me to get into the Game. I found this great Tutorial:
@@ -50,7 +50,7 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP4 -> done  | 28.10.2021
 - EP5 -> done  | 29.10.2021
 - EP6 -> done  | 01.11.2021
-- EP7 -> WIP
+- EP7 -> done  | 02.11.2021
 
 ### Info Current Project Issues/errors
 
@@ -60,6 +60,9 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
   properly. Workaround for now: open the Creeps Memory and append a new Property giving them: role:3  for Miners and role:2 for Builders.
   In that way the CrepsMemory will fix it self afterwars.
   After some more Try and Error it seems that it works for now. Will keep an eye on it.
+- EP-7: had to change the memoryInit() again. I hope now its working. Added 2 more Console Commands:
+  setMem() To set new Memory version on the Fly
+  getMem() To get the actual Memory version
 
 ### Helper
 

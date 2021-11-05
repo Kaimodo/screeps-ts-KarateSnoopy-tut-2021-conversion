@@ -20,7 +20,7 @@ Logger from ([resir014](https://github.com/resir014/Stonehenge))
 
   in the Console.
 
-# This is all WIP and there will be no guarantee that the commited code is working ;)
+# This is all WIP and there will be no guarantee that the committed code is working ;)
 
 I own Screeps since 2017 but never rly digged into it. And as i Am not rly a Programmer it is
 hard for me to get into the Game. I found this great Tutorial:
@@ -28,12 +28,12 @@ hard for me to get into the Game. I found this great Tutorial:
 - ([KarateSnoopy](https://github.com/KarateSnoopy/LetsPlayScreeps))
 
 and this will be my attempt to understand and convert it to Screeps 2021.
-This will be much try and error, so i am not capable to do a video tut as he did. (mabe in the future i will)
+This will be much try and error, so i am not capable to do a video tut as he did. (maybe in the future i will)
 U can get the Code for his Episodes here:
 
 - ([KarateSnoopy's Commits](https://github.com/KarateSnoopy/LetsPlayScreeps/commits/master)
 
-and the Vidoe Tutorial is on Youtube here:
+and the Video Tutorial is on Youtube here:
 
 - ([Youtube-Video-List](https://www.youtube.com/watch?v=ldu_AI7t_5o&list=PLCRhjmqETCePxmtB2mKScrJB_SCAI6jqw&index=3))
 
@@ -46,30 +46,32 @@ Here you will get the Commits from me:
 
 i had a lot of trouble so always use the last Commit of a specific Episode, sry 4 that one.
 
-- EP3 -> done  | 27.10.2021
-- EP4 -> done  | 28.10.2021
-- EP5 -> done  | 29.10.2021
-- EP6 -> done  | 01.11.2021
-- EP7 -> done  | 02.11.2021
+- EP-03 -> done  | 27.10.2021
+- EP-04 -> done  | 28.10.2021
+- EP-05 -> done  | 29.10.2021
+- EP-06 -> done  | 01.11.2021
+- EP-07 -> done  | 02.11.2021
+- EP-08 -> done  | 05.11.2021
+- EP-09 -> WIP
 
 ### Info Current Project Issues/errors
 
-- EP-6 End: The Code for calculating the ammount of energy a Creep is carriying was wrong. It's fixed now. Behaviour was
+- EP-06 End: The Code for calculating the amount of energy a Creep is carrying was wrong. It's fixed now. Behavior was
   that Creeps only mined 4% Energy and ran away afterwards.
-- EP-6 End: I still don't know how to get around the delta operand error in memoryInit(). Loading a new Mem version seems not to work
+- EP-06 End: I still don't know how to get around the delta operand error in memoryInit(). Loading a new Mem version seems not to work
   properly. Workaround for now: open the Creeps Memory and append a new Property giving them: role:3  for Miners and role:2 for Builders.
-  In that way the CrepsMemory will fix it self afterwars.
+  In that way the CreepsMemory will fix it self afterwards.
   After some more Try and Error it seems that it works for now. Will keep an eye on it.
-- EP-7: had to change the memoryInit() again. I hope now its working. Added 2 more Console Commands:
-  setMem() To set new Memory version on the Fly
-  getMem() To get the actual Memory version
+- EP-07: had to change the memoryInit() again. I hope now its working. Added 2 more Console Commands:
+  setMem(number) To set new Memory version on the Fly | getMem() To get the actual Memory version
+- EP-08 End: The clearing memory is working Properly, had a look at it the last 2 Episodes.
 
 ### Helper
 
 +-------------------------------------------------------------------------------------+
 |R |  R       |  C |  S |  E  | R          | W  | T |  S |  L |  E |  L |  T |  O |  P|
 |C |  o       |  o |  p |  x  | a          | a  | o |  t |  i |  x |  a |  e |  b |  S|
-|L |  a       |  n |  a |  t  | m          | l  | w |  o |  n |  t |  b |  t |  s |  p|
+|L |  a       |  n |  a |  t  | m          | l  | w |  o |  n |  t |  b |  r |  s |  p|
 |  |  d	      |  t |  w |  e  | p          | l  | e |  r |  k |  r |  o |  m |  e |  a|
 |  |          |  a |  n |  n  | a          | s  | r |  a |    |  a |  r |  i |  r |  w|
 |  |          |  i |	  |  s  | r			     |    |   |  g |    |  k |	y |  n |  v |  n|
@@ -86,7 +88,7 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 +-------------------------------------------------------------------------------------+
 */
 
-## Usefull Links
+## Useful Links
 
 (https://screeps.fandom.com/wiki/Creep#Body_Parts)
 

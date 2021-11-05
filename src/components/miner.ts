@@ -1,14 +1,15 @@
 import {log} from '../tools/logger/logger';
 import * as M from "../memory";
-import * as Builder from "./builder";
 import * as RoomManager from "./roomManager";
 import {ENABLE_DEBUG_MODE} from "../config";
 
 /**
- * run: Main Miner Function called by The RoomManager
- * @param room The Room in which the Miner works
- * @param creep The Creep-Object which is running this Function
- * @param rm The RoomMemory-Object
+ * Main Miner Function called by The RoomManager
+ * @export run
+ * @param {Room} room The Room in which the Miner works
+ * @param {Creep} creep The Creep-Object which is running this Function
+ * @param {M.RoomMemory} rm The RoomMemory-Object
+ * @return {*}  {void}
  */
 export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
     const creepMem = M.cm(creep);
@@ -49,11 +50,12 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
 }
 
 /**
- * moveToMine at the given Mining Target from the Task in the RoomMemory
- * @param creep The given Creep
- * @param cm The Memory of given Creep
- * @param rm The RoomMemory
- * @param The Task the given Creep is assigned to.
+ *
+ * Harvest Energy at the given Mining Target from the Task in the RoomMemory
+ * @param {Creep} creep The given Creep
+ * @param {M.CreepMemory} cm The Memory of given Creep
+ * @param {M.RoomMemory} rm The RoomMemory
+ * @param {M.MinerTask} minerTask Task the given Creep is assigned to.
  */
 function harvestEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory, minerTask: M.MinerTask): void {
     // log.info(`${creep.name}: Miner is moving to mine`);
@@ -72,10 +74,8 @@ function harvestEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory, minerT
     } else {
         // log.info(`${creep.name}: Miner is in Position at ${minerTask.minerPosition.x},${minerTask.minerPosition.y}`);
         const sourceId: Id<Source> = minerTask.minerPosition.targetId as Id<Source>;
-        const source2 = Game.getObjectById(sourceId) as Source;
-        // const source = Game.getObjectById(minerTask.minerPosition.targetId) as Source;
-        // const errCode = creep.harvest(source);
-        const errCode = creep.harvest(source2);
+        const source = Game.getObjectById(sourceId) as Source;
+        const errCode = creep.harvest(source);
         if(errCode !== OK && errCode !== ERR_NOT_IN_RANGE && errCode !== ERR_NOT_ENOUGH_RESOURCES){
             log.error(`harvester error: ${errCode}`);
         }
@@ -84,10 +84,11 @@ function harvestEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory, minerT
 
 /**
  *
- * @param room The given Room to build in
- * @param creep The Creep which gets the building order
- * @param rm The RoomMemory of the Room
- * @returns True if building is possible
+ * Build Construction site if able to.
+ * @param {Room} room The given Room to build in
+ * @param {Creep} creep The Creep which gets the building order
+ * @param {M.RoomMemory} rm  The RoomMemory of the Room
+ * @return {*}  {boolean} True if building is possible
  */
 function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
 
@@ -102,7 +103,7 @@ function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
         if(status === ERR_NOT_IN_RANGE){
             const moveCode = creep.moveTo(targets[0], {visualizePathStyle: {stroke: '0000ff'}});
             if(moveCode !== OK && moveCode !== ERR_TIRED){
-                log.error(`move and got ${moveCode}`);
+                log.error(`move and got: ${moveCode}`);
             }
         }
         return true;
@@ -112,7 +113,7 @@ function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
         if(ENABLE_DEBUG_MODE) log.debug("RoomManager.containers.length: " + RoomManager.containers.length + " | rm.containerPositions.length: " + rm.containerPositions.length);
         if(RoomManager.containers.length !== rm.containerPositions.length){
             _.each(rm.containerPositions, (containerPos: M.PositionPlusTarget) => {
-                log.info(`Creating container at ${containerPos.x}, ${containerPos.y}`);
+                log.info(`Creating container at: ${containerPos.x}, ${containerPos.y}`);
                 const roomPos: RoomPosition | null = room.getPositionAt(containerPos.x, containerPos.y);
                 if (roomPos !== null) {
                     creep.room.createConstructionSite(roomPos, STRUCTURE_CONTAINER);
@@ -124,17 +125,25 @@ function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
 }
 
 /**
+ *
  * dropOffEnergy carried
- * @param room The Room in which the Miner is working
- * @param creep The given Creep
+ * @param {Room} room The Room in which the Miner is working
+ * @param {Creep} creep The given Creep
+ * @param {M.RoomMemory} rm The RoomMemory
+ * @param {M.MinerTask} minerTask The given Miner task
  */
- function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.MinerTask): void{
+function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.MinerTask): void{
      let target: Structure | undefined;
 
+     let MinerStruct =  room.find<StructureContainer>(FIND_STRUCTURES);
+     let MinerContainers = _.filter(MinerStruct, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
+     let MinerCreeps = room.find(FIND_MY_CREEPS);
+     let MinerBuilders = _.filter(MinerCreeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
+     // log.debug("M.MinCont: "+ MinerContainers.length + " | M.MinBuild: " + MinerBuilders.length);
      if (minerTask.sourceContainer === undefined ||
-         RoomManager.builders.length + 1 >= rm.desiredBuilders){
-         if (RoomManager.containers.length === rm.containerPositions.length &&
-             RoomManager.builders.length + 1 >= rm.desiredBuilders){
+            MinerBuilders.length + 1 >= rm.desiredBuilders){
+            if (MinerContainers.length === rm.containerPositions.length &&
+                MinerBuilders.length + 1 >= rm.desiredBuilders){
              const foundContainerPos = _.find(rm.containerPositions, (containerPos: M.PositionPlusTarget) => containerPos.targetId === minerTask.minerPosition.targetId);
              if (foundContainerPos !== null){
                  if (foundContainerPos){
@@ -175,8 +184,9 @@ function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
              }
          }
      } else {
-         target = Game.getObjectById(minerTask.sourceContainer.targetId) as Structure;
-         log.info(`Going to ${target}`);
+        const targetId: Id<StructureContainer> = minerTask.sourceContainer.targetId as Id<StructureContainer>;
+        target = Game.getObjectById(targetId) as Structure;
+         log.info(`Going to: ${target}`);
      }
 
      if (target !== undefined){
@@ -195,7 +205,7 @@ function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
                  if (status === ERR_NOT_IN_RANGE){
                      const moveCode = creep.moveTo(room.controller, { visualizePathStyle: { stroke: "#ffffff" } });
                      if (moveCode !== OK && moveCode !== ERR_TIRED){
-                         log.error(`move and got ${moveCode}`);
+                         log.error(`move and got: ${moveCode}`);
                      }
                  }
              }

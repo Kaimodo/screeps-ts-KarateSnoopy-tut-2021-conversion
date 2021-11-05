@@ -1,14 +1,26 @@
 // Memory and other Things
-export let MemoryVersion = 11;
+export let MemoryVersion = 17;
 
+/**
+ * @export number Set the current Game MemoryVersion
+ * @param {number} value The number
+ */
 export function setMemVersion(value: number): void {
     MemoryVersion = value;
-  }
+}
 
-  export function getMemVersion(): number {
+/**
+ * @export number current Game Memory Version
+ * @return {*}  {number} Memory Version
+ */
+export function getMemVersion(): number {
     return MemoryVersion;
-  }
+}
 
+/**
+ * @export enum Creep Roles as Number
+ * @enum {number} Creep Roles as Number
+ */
 export const enum CreepRoles {
     ROLE_UNASSINGED = 0,
     ROLE_ALL,
@@ -28,8 +40,9 @@ export const enum CreepRoles {
 
 /**
  *
- * @param job The Role the Creep is assigned
- * @returns The Role as String
+ * @export Creep Role as String
+ * @param {CreepRoles} job The Role the Creep is assigned
+ * @return {*}  {string} The Role
  */
 export function roleToString(job: CreepRoles): string {
     switch(job){
@@ -94,7 +107,23 @@ export interface NodeChoice
     y: number;
     dist: number;
 }
+export interface NodeContainerIdChoice
+{
+    id: string;
+    count: number;
+}
+/**
+ *
+ * @export The Game Memory
+ * @interface GameMemory
+ */
 export interface GameMemory {
+    /**
+     * The Game-memory Version
+     * @property memVersion
+     * @type {(number | undefined)}
+     * @memberof GameMemory
+     */
     memVersion: number | undefined;
     uuid: number;
     log: any;
@@ -121,22 +150,25 @@ export interface CreepMemory {
     log: boolean;
     assignedMineTaskId?: number;
     gathering: boolean;
+    assignedContainerId?: string;
 }
 
+
 /**
- * Cast? CreepMemory
- * @param creep The given Creep
- * @returns CreepMemory
+ * Returns CreepMemory as cm
+ * @export CreepMemory
+ * @param {Creep} creep The Creep
+ * @return {*}  {CreepMemory}
  */
 export function cm(creep: Creep): CreepMemory{
     return creep.memory as CreepMemory;
 }
 
 /**
- * Cast? gameMemory. for better understanding i called it gm instead of m only.
- * @param creep The given Creep
- * @returns GameMemory
+ * Returns GameMemory. for better understanding its gm not only m
+ * @export GameMemory
+ * @return {*}  {GameMemory}
  */
- export function gm(): GameMemory{
+export function gm(): GameMemory{
     return Memory as any as GameMemory;
 }

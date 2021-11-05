@@ -1,7 +1,7 @@
 
 # KarateSnoopy's Tutorial Conversion to 2021 (attempt)
 
-![](https://screeps.com/images/logotype-animated.svg)
+![ScreepsImg](https://screeps.com/images/logotype-animated.svg)
 
 # What me added
 
@@ -52,10 +52,13 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP-06 -> done  | 01.11.2021
 - EP-07 -> done  | 02.11.2021
 - EP-08 -> done  | 05.11.2021
-- EP-09 -> WIP
+- EP-09 -> done  | 05.11.2021
+- EP-10 -> WIP -> builder, mem, miner, RoomManager
 
 ### Info Current Project Issues/errors
 
+- EP-03-06 I don't know where exact this error is, but the Miner's didn't fill the Containers. Thats fixed now in EP-09, here is the Correction which should work when u first write the Code for the Miners:
+  ![MinerError](/img/MinerError.png "Miner Error");
 - EP-06 End: The Code for calculating the amount of energy a Creep is carrying was wrong. It's fixed now. Behavior was
   that Creeps only mined 4% Energy and ran away afterwards.
 - EP-06 End: I still don't know how to get around the delta operand error in memoryInit(). Loading a new Mem version seems not to work
@@ -65,6 +68,7 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP-07: had to change the memoryInit() again. I hope now its working. Added 2 more Console Commands:
   setMem(number) To set new Memory version on the Fly | getMem() To get the actual Memory version
 - EP-08 End: The clearing memory is working Properly, had a look at it the last 2 Episodes.
+- EP-09 End: i decided to restructure the Folders a bit to get an better overview. The Main Roommanager -Methods are in Roommanager. The Sub-Methods in the Lib.
 
 ### Helper
 

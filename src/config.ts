@@ -9,6 +9,7 @@
  */
 export const ENABLE_DEBUG_MODE: boolean = true;
 
+// First Room Name
 export const FIRST_ROOM_NAME = Game.spawns.Spawn1.room.name;
 
 // SpawnName

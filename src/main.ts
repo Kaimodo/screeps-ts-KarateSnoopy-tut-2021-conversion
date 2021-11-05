@@ -17,6 +17,7 @@ import { ConsoleCommands } from "tools/consolecommands";
 import * as Config from "config";
 
 import * as RoomManager from "components/roommanager";
+import * as RLib from "components/Lib/lib";
 
 import * as M from "memory";
 
@@ -59,12 +60,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (rm === undefined){
         log.info('Init Room Mem for' + room.name);
         Memory.rooms[room.name] = {};
-        Tools.InitRoomMemory(room, room.name);
+        RLib.InitRoomMemory(room, room.name);
       } else {
         RoomManager.run(room, rm);
       }
       if (Game.time % 10 === 0){
-        Tools.cleanupAssignedMiners(rm)
+        RLib.cleanupAssignedMiners(rm)
       }
     }
     // Clear Memory and give short Game-Info

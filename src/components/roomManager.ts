@@ -3,9 +3,9 @@ import * as miner from "./miner";
 import * as builder from "./builder";
 import { log } from "../tools/logger/logger";
 import * as Profiler from "screeps-profiler";
-import {SPAWNNAME} from "config";
 import * as M from "memory";
 import * as Inscribe from "screeps-inscribe";
+import {ENABLE_DEBUG_MODE} from "config";
 
 export let creeps: Creep[];
 export let creepCount: number = 0;
@@ -52,7 +52,7 @@ function loadCreeps(room: Room, rm: M.RoomMemory)
     creepCount = _.size(creeps);
     miners = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_MINER);
     builders = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
-    structures = room.find<StructureContainer>(FIND_MY_STRUCTURES);
+    structures = room.find<StructureContainer>(FIND_STRUCTURES);
     containers = _.filter(structures, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
 
     log.info(`[${Inscribe.color(`Mem: ${M.gm().memVersion}/${M.MemoryVersion} | M: ${miners.length}/${rm.minerTasks.length} | B: ${builders.length}/${rm.desiredBuilders}`, "skyblue")}]`);
@@ -113,7 +113,7 @@ function buildMissingCreeps(room: Room, rm: M.RoomMemory)
 Profiler.registerFN(buildMissingCreeps, '_buildMissingCreeps');
 
 /**
- * Spawn the Creeps if necesary
+ * Spawn the Creeps if necessary
  * @param spawn The specific Spawn
  * @param bodyParts The BodyParts with which the Creep should be Spawned
  * @param role The Role of the Spawning Creep

@@ -12,6 +12,17 @@ export const ConsoleCommands = {
     console.log(`[${Inscribe.color("CC", "red")}] Commands working`);
   },
   /**
+   * Shows List of Commands
+   */
+  help(): void {
+    console.log(`[${Inscribe.color("CC", "skyblue")}] List of Commands:`);
+    console.log(`[${Inscribe.color("CC", "skyblue")}] help() | Shows this list.`);
+    console.log(`[${Inscribe.color("CC", "skyblue")}] test() | Check if Commands work`);
+    console.log(`[${Inscribe.color("CC", "skyblue")}] setMem(number) | Set the Memory-Version to number`);
+    console.log(`[${Inscribe.color("CC", "skyblue")}] getMem() | show the Memory-Version`);
+    console.log(`[${Inscribe.color("CC", "skyblue")}] killAll(roomname) | Kill all Screeps in given Room`);
+  },
+  /**
    * Set the actual Memory Version
    * @param The Number u wanna Set
    */
@@ -31,7 +42,7 @@ export const ConsoleCommands = {
    * Kill all Creeps in given Room
    * @param roomName The Room Name
    */
-  killall(roomName?: string) {
+  killAll(roomName?: string) {
     _.forEach(Game.creeps, (c: Creep) => {
       if ((roomName && c.room.name === roomName) || !roomName) {
         c.suicide();

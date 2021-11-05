@@ -9,22 +9,24 @@ import {ENABLE_DEBUG_MODE} from "config";
  */
 export function memoryInit(){
   // Not sure how to solve the Delta Operand Error
-  //delete Memory.flags[0];
-  //delete Memory.spawns[0];
-  //delete Memory.creeps[0];
-  //delete Memory.rooms[0];
+  // delete Memory.flags[0];
+  // delete Memory.spawns[0];
+  // delete Memory.creeps[0];
+  // delete Memory.rooms[0];
   // Object.keys(Memory.flags).forEach(key => {delete Memory.flags[key];});
   // Object.keys(Memory.spawns).forEach(key => {delete Memory.spawns[key];});
   // Object.keys(Memory.creeps).forEach(key => {delete Memory.creeps[key];});
   // Object.keys(Memory.rooms).forEach(key => {delete Memory.rooms[key];});
-  for (const r in Memory.flags){ delete Memory.flags[r]}
-  for (const r in Memory.spawns){ delete Memory.spawns[r]}
-  for (const r in Memory.creeps){ delete Memory.creeps[r]}
-  for (const r in Memory.rooms){ delete Memory.rooms[r]}
-  //Memory.flags = {};
-  //Memory.spawns = {};
-  //Memory.creeps = {};
-  //Memory.rooms = {};
+  // for (const r in Memory.flags){ delete Memory.flags[r]}
+  // for (const r in Memory.spawns){ delete Memory.spawns[r]}
+  // for (const r in Memory.creeps){ delete Memory.creeps[r]}
+  // for (const r in Memory.rooms){ delete Memory.rooms[r]}
+  // Memory.flags = {};
+  // Memory.spawns = {};
+  // Memory.creeps = {};
+  // Memory.rooms = {};
+  // Should Work now:
+  _clearMemory();
 
   const mem = M.gm();
   mem.creeps = {};
@@ -35,11 +37,37 @@ export function memoryInit(){
 }
 
 /**
+ * clear Memory
+ */
+export function _clearMemory(): void {
+  for (const name in Memory.flags) {
+    if (!(name in Game.flags)) {
+      delete Memory.flags[name];
+    }
+  }
+  for (const name in Memory.spawns) {
+    if (!(name in Game.spawns)) {
+      delete Memory.spawns[name];
+    }
+  }
+  for (const name in Memory.creeps) {
+    if (!(name in Game.creeps)) {
+      delete Memory.creeps[name];
+    }
+  }
+  for (const name in Memory.rooms) {
+    if (!(name in Game.rooms)) {
+      delete Memory.rooms[name];
+    }
+  }
+}
+
+/**
  * Initiate the Room. and get Energy-Mining-Positions from SOurces
  * @param room The given Room
  * @param roomName The Name of the Room
  */
-export function InitRoomMemory(room: Room, roomName: string) {
+ export function InitRoomMemory(room: Room, roomName: string) {
   const rm: M.RoomMemory = M.gm().rooms[roomName];
   rm.roomName = roomName;
   rm.minerTasks = [];
@@ -88,7 +116,8 @@ export function InitRoomMemory(room: Room, roomName: string) {
           taskIdNum++;
           const minerTask: M.MinerTask = {
                   minerPosition: minerPos,
-                  taskId: taskIdNum
+                  taskId: taskIdNum,
+                  sourceContainer: undefined
           };
 
           rm.minerTasks.push(minerTask);
@@ -155,7 +184,7 @@ function getOptimalContainerPosition(minerTasksForSource: M.MinerTask[], sourceP
   if (sortedChoices.length > 0) {
     log.info(`Cont: Best choice is ${sortedChoices[0].x}, ${sortedChoices[0].y} == ${sortedChoices[0].dist}`);
     const containerPos: M.PositionPlusTarget = {
-        targetId: "",
+        targetId: sourcePos.targetId,
         x: sortedChoices[0].x,
         y: sortedChoices[0].y
     };
@@ -166,6 +195,63 @@ function getOptimalContainerPosition(minerTasksForSource: M.MinerTask[], sourceP
   return null;
 }
 
+/**
+* Check if Assigned Tasks have no Miner
+* @param rm The RoomMemory
+*/
+export function cleanupAssignedMiners(rm: M.RoomMemory){
+  for (const task of rm.minerTasks){
+      if(task.assignedMinerName !== undefined){
+          const creep = Game.creeps[task.assignedMinerName];
+          if(creep as any === undefined){
+            log.info(`[${Inscribe.color(`Clearing mining task assigned to ${task.assignedMinerName}`, "red")}]`);
+            task.assignedMinerName = undefined;
+          } else if(M.cm(creep).role !== M.CreepRoles.ROLE_MINER){
+            task.assignedMinerName = undefined;
+            // log.info(`Clearing mining task assigned to ${task.assignedMinerName}`);
+            log.info(`[${Inscribe.color(`Clearing mining task assigned to ${task.assignedMinerName}`, "red")}]`);
+          }
+      }
+  }
+}
+
+
+/**
+ * Generate Pixel if Bucket >= number
+ * @param bucketHight The Amount of minimal Bucket
+ */
+export function generatePixel(bucketHight: number): void {
+  if (Game.cpu.bucket >= bucketHight) {
+      Game.cpu.generatePixel();
+  }
+}
+
+/**
+ * Creates a Link to the given Room
+ * @param roomName The Room name
+ * @returns Link
+ */
+export function roomLink(roomName: string): string {
+  return `<a href="https://screeps.com/a/#!/room/${Game.shard.name}/${roomName}">${roomName}</a>`;
+}
+
+/**
+ * Does the function with each Creep.
+ * @param func The given Function
+ */
+export const forEachCreep = (func: (item: Creep) => void): void => {
+  Object.values(Game.creeps).forEach((creep) => func(creep));
+};
+
+/**
+ * Get the average distance between Start and End point.
+ * @param pos1 Start Position (x,y)
+ * @param pos2 End Position (x,y)
+ * @returns The distance between both points as Number
+ */
+export function distance(start: { x: number; y: number }, end: { x: number; y: number }): number {
+  return Math.max(Math.abs(start.x - end.x), Math.abs(start.y - end.y));
+}
 
 /**
  * Get some basic Info about the game state
@@ -181,7 +267,7 @@ export function log_info() {
 }
 
 /**
- * Clear Memory of non Existant Creep
+ * Clear Memory of non Existent Creep
  */
 export function ClearNonExistingCreeMemory() {
   if (Game.time % 100 === 0) {
@@ -194,23 +280,5 @@ export function ClearNonExistingCreeMemory() {
   }
 }
 
-/**
- * Check if Assigned Tasks have no Miner
- * @param rm The RoomMemory
- */
-export function cleanupAssignedMiners(rm: M.RoomMemory){
-  for (const task of rm.minerTasks){
-      if(task.assignedMinerName !== undefined){
-          const creep = Game.creeps[task.assignedMinerName];
-          if(creep as any === undefined){
-            log.info(`[${Inscribe.color(`Clearing minning task assigned to ${task.assignedMinerName}`, "red")}]`);
-            task.assignedMinerName = undefined;
-          } else if(M.cm(creep).role !== M.CreepRoles.ROLE_MINER){
-            task.assignedMinerName = undefined;
-            // log.info(`Clearing minning task assigned to ${task.assignedMinerName}`);
-            log.info(`[${Inscribe.color(`Clearing minning task assigned to ${task.assignedMinerName}`, "red")}]`);
-          }
-      }
-  }
-}
+
 

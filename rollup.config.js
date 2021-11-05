@@ -5,6 +5,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
 import screeps from 'rollup-plugin-screeps';
+import visualizer from "rollup-plugin-visualizer";
 
 let cfg;
 const dest = process.env.DEST;
@@ -27,6 +28,10 @@ export default {
     resolve({ rootDir: "src" }),
     commonjs(),
     typescript({tsconfig: "./tsconfig.json"}),
-    screeps({config: cfg, dryRun: cfg == null})
+    screeps({config: cfg, dryRun: cfg == null}),
+    visualizer({filename: "Screeps-Visual.html",
+                sourcemap: true,
+                template: "treemap"})
   ]
+  // sunburst, treemap, network
 }

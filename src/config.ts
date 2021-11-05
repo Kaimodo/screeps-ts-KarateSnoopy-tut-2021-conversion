@@ -36,7 +36,7 @@ import { LogLevel } from "tools/logger/logLevel";
  export const LOG_PRINT_LINES: boolean = true;
 
  /**
-  * Load source maps and resolve source lines back to typeascript.
+  * Load source maps and resolve source lines back to typescript.
   */
  export const LOG_LOAD_SOURCE_MAP: boolean = true;
 

@@ -1,5 +1,5 @@
-// Memory and other Thimngs
-export let MemoryVersion = 35;
+// Memory and other Things
+export let MemoryVersion = 11;
 
 export function setMemVersion(value: number): void {
     MemoryVersion = value;
@@ -73,6 +73,7 @@ export interface MinerTask {
     taskId: number;
     minerPosition: PositionPlusTarget;
     assignedMinerName?: string;
+    sourceContainer: PositionPlusTarget | undefined;
 }
 
 export class RoomMemory {

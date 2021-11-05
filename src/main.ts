@@ -16,7 +16,8 @@ import { ConsoleCommands } from "tools/consolecommands";
 
 import * as Config from "config";
 
-import * as RoomManager from "components/roomManager";
+import * as RoomManager from "components/roommanager";
+
 import * as M from "memory";
 
 
@@ -34,7 +35,7 @@ if (USE_PROFILER) {
 const elapsedCPU = Game.cpu.getUsed() - startCpu;
 console.log(`[${Inscribe.color("Script Loading needed: ", "skyblue") + elapsedCPU.toFixed(2) + " Ticks"}]`);
 
-// main Loop + ErrorMaper + Profiler starting here
+// main Loop + ErrorMapper + Profiler starting here
 export const loop = ErrorMapper.wrapLoop(() => {
   Profiler.wrap(() => {
     global.cc = ConsoleCommands;

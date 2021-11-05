@@ -5,7 +5,7 @@ import * as M from "../memory";
  * Main Builder function to execute
  * @param room The Room in which the Builder works
  * @param creep The Creep which is the Builder
- * @param rm The RoomMemory of the given Romm
+ * @param rm The RoomMemory of the given Room
  */
 export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
     const cm = M.cm(creep);

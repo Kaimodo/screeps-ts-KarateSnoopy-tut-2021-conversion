@@ -1,5 +1,7 @@
+import * as Inscribe from "screeps-inscribe";
+import {log} from "./tools/logger/logger";
 // Memory and other Things
-export let MemoryVersion = 17;
+export let MemoryVersion = 18;
 
 /**
  * @export number Set the current Game MemoryVersion
@@ -95,7 +97,10 @@ export class RoomMemory {
     public desiredBuilders!: number;
     public energySources!: PositionPlusTarget[];
     public containerPositions!: PositionPlusTarget[];
-
+    public techLevel: number = 0;
+    public buildsThisTick: number = 0;
+    public spawnText?: string;
+    public spawnTextId?: number | string;
     public constructor(room: Room){
         this.roomName = room.name;
     }
@@ -145,6 +150,7 @@ export interface GameMemory {
 }
 
 export interface CreepMemory {
+    name: string;
     role: CreepRoles;
     roleString: string;
     log: boolean;
@@ -171,4 +177,25 @@ export function cm(creep: Creep): CreepMemory{
  */
 export function gm(): GameMemory{
     return Memory as any as GameMemory;
+}
+/**
+ *
+ *  Log Code Line with Info
+ * @export lNameRole
+ * @param {CreepMemory} cmLog The CreepMemory for the Log
+ * @param {string} logLine The Code Line
+ */
+export function lNameRole(cmLog: CreepMemory, logLine: string){
+    log.info(`[${Inscribe.color(`${cmLog.name} ${roleToString(cmLog.role)}: ${logLine}`, "green")}]`)
+}
+
+/**
+ *
+ *  Log Code Line with Info
+ * @export lNameRoleErr
+ * @param {CreepMemory} cmLog The CreepMemory for the Log
+ * @param {string} logLine The Code Line
+ */
+export function lNameRoleErr(cmLog: CreepMemory, logLine: string){
+    log.error(`[${Inscribe.color(`${cmLog.name} ${roleToString(cmLog.role)}: ${logLine}`, "red")}]`)
 }

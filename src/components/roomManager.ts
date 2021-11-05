@@ -14,6 +14,7 @@ export let miners: Creep[] = [];
 export let builders: Creep[] = [];
 export let structures: Structure[] = [];
 export let containers: StructureContainer[] = [];
+export let constructionSites: ConstructionSite[] = [];
 
 /**
  * The Main Function in every Room witch is executed
@@ -23,7 +24,24 @@ export let containers: StructureContainer[] = [];
 export function run(room: Room, rm: M.RoomMemory): void
 {
 
-    loadCreeps(room, rm);
+    if(Game.time % 1 === 0){
+        _scanRoom(room, rm);
+    }
+
+    if(rm.spawnText !== undefined && rm.spawnTextId !== undefined){
+        const spawnId: Id<StructureSpawn> = rm.spawnTextId as Id<StructureSpawn>;
+        const spawn = Game.getObjectById(spawnId) as StructureSpawn;
+
+        room.visual.text(
+            rm.spawnText,
+            spawn.pos.x + 1,
+            spawn.pos.y,
+            { align: "left", opacity: 0.8 }
+        );
+        if (spawn.spawning === null){
+            rm.spawnText = undefined;
+        }
+    }
 
     buildMissingCreeps(room, rm);
 
@@ -47,7 +65,7 @@ Profiler.registerFN(run, 'run(Creep)');
  * @param room The Room in which run is started
  * @param rm The Memory of the Room
  */
- function loadCreeps(room: Room, rm: M.RoomMemory)
+ function _scanRoom(room: Room, rm: M.RoomMemory)
  {
      creeps = room.find(FIND_MY_CREEPS);
      creepCount = _.size(creeps);
@@ -55,10 +73,13 @@ Profiler.registerFN(run, 'run(Creep)');
      builders = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
      structures = room.find<StructureContainer>(FIND_STRUCTURES);
      containers = _.filter(structures, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
+     constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+     rm.techLevel = RLib.getTechLevel(room, rm);
+     rm.buildsThisTick = 0;
 
-     log.info(`[${Inscribe.color(`Mem: ${M.gm().memVersion}/${M.MemoryVersion} | M: ${miners.length}/${rm.minerTasks.length} | B: ${builders.length}/${rm.desiredBuilders} | S: ${structures.length} | Con: ${containers.length}/${rm.containerPositions.length}`, "skyblue")}]`);
+     log.info(`[${Inscribe.color(`TL=${rm.techLevel} | Mem: ${M.gm().memVersion}/${M.MemoryVersion} | M: ${miners.length}/${rm.minerTasks.length} | B: ${builders.length}/${rm.desiredBuilders} | S: ${structures.length} | Con: ${containers.length}/${rm.containerPositions.length}`, "skyblue")}]`);
  }
- Profiler.registerFN(loadCreeps, '_loadCreeps');
+ Profiler.registerFN(_scanRoom, '_scanRoom');
 
 
 /**
@@ -88,14 +109,12 @@ function buildMissingCreeps(room: Room, rm: M.RoomMemory)
         //     bodyParts = [WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE];
         // }
 
-        RLib.tryToSpawnCreep(inactiveSpawns, bodyParts, M.CreepRoles.ROLE_MINER);
+        RLib.tryToSpawnCreep(inactiveSpawns, bodyParts, M.CreepRoles.ROLE_MINER, rm);
     }
-    if (miners.length === rm.minerTasks.length){
-        if(containers.length === rm.energySources.length){
-            if(builders.length < rm.desiredBuilders){
-                bodyParts = [WORK, WORK, CARRY, MOVE];
-                RLib.tryToSpawnCreep(inactiveSpawns, bodyParts, M.CreepRoles.ROLE_BUILDER);
-            }
+    if (rm.techLevel >= 3){
+        if(builders.length < rm.desiredBuilders){
+            bodyParts = [WORK, WORK, CARRY, MOVE];
+            RLib.tryToSpawnCreep(inactiveSpawns, bodyParts, M.CreepRoles.ROLE_BUILDER, rm);
         }
     }
 }

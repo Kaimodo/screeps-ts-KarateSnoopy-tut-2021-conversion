@@ -13,48 +13,43 @@ import * as RoomManager from "../roomManager";
  * @param {M.CreepRoles} role The Role of the Spawning Creep
  * @return {*}  {number} The Status Msg from the Spawn as Number
  */
-export function spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[], role: M.CreepRoles): number
+export function spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[], role: M.CreepRoles, rm: M.RoomMemory): number
  {
      const uuid: number = M.gm().uuid
      let status: number | string = spawn.spawnCreep(bodyParts, 'status' , {dryRun: true});
 
-
-     let properties: any = {
-         memory: {
-             log: false,
-             role: role,
-             roleString: M.roleToString(role),
-             gathering: true,
-         }
-     }
-
      status = _.isString(status) ? OK : status;
      if (status === OK)
      {
-         M.gm().uuid = uuid + 1;
-         let splitName: string = properties.memory.roleString;
-         const [prefix, roleName] = splitName.split('_');
+        const creepName: string = spawn.room.name + " - " + M.roleToString(role) + "-" + uuid;
+        M.gm().uuid = uuid + 1;
+        let properties: any = {
+            memory: {
+                name: creepName,
+                log: false,
+                role: role,
+                roleString: M.roleToString(role),
+                gathering: true,
+            }
+        }
 
-         let creepName: string = spawn.room.name + "-" + roleName + "-"+ uuid;
+        // let splitName: string = properties.memory.roleString;
+        // const [prefix, roleName] = splitName.split('_');
+        // let creepName: string = spawn.room.name + "-" + roleName + "-"+ uuid;
 
-         log.info("Started creating new creep: " + creepName);
-         if (Config.ENABLE_DEBUG_MODE)
-         {
-             log.info("Body: " + bodyParts);
-             log.info("Memory: " + JSON.stringify(properties));
-         }
+        log.info("Started creating new creep: " + creepName);
+        if (Config.ENABLE_DEBUG_MODE)
+        {
+            log.info("Body: " + bodyParts);
+            log.info("Memory: " + JSON.stringify(properties));
+        }
 
-         status = spawn.spawnCreep(bodyParts, creepName, properties as SpawnOptions);
+        status = spawn.spawnCreep(bodyParts, creepName, properties as SpawnOptions);
 
-         if(status === OK){
-             spawn.room.visual.text(
-                 `🛠️ ${roleName}`,
-                 spawn.pos.x + 1,
-                 spawn.pos.y,
-                 { align: "left", opacity: 0.8 });
-         }
+        rm.spawnText = `🛠️ ${M.roleToString(role)}`;
+        rm.spawnTextId = spawn.id;
 
-         return _.isString(status) ? OK : status;
+        return _.isString(status) ? OK : status;
      } else
      {
          if (Config.ENABLE_DEBUG_MODE && status !== ERR_NOT_ENOUGH_ENERGY)
@@ -74,12 +69,12 @@ export function spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[],
  * @param {BodyPartConstant[]} bodyParts The Parts of the Creep
  * @param {M.CreepRoles} role The Role that the creep will follow
  */
-export function tryToSpawnCreep(inactiveSpawns: StructureSpawn[], bodyParts: BodyPartConstant[], role: M.CreepRoles){
+export function tryToSpawnCreep(inactiveSpawns: StructureSpawn[], bodyParts: BodyPartConstant[], role: M.CreepRoles, rm: M.RoomMemory){
     let spawned: boolean = false;
     _.each(inactiveSpawns, (spawn: StructureSpawn) =>
     {
         if(!spawned){
-            const status = spawnCreep(spawn, bodyParts, role);
+            const status = spawnCreep(spawn, bodyParts, role, rm);
             if (status === OK) {
                 spawned = true;
             }
@@ -100,11 +95,10 @@ function getOptimalContainerPosition(minerTasksForSource: M.MinerTask[], sourceP
       return null;
     }
 
-    const spawns: StructureSpawn[] = room.find(FIND_MY_SPAWNS);
-    if (spawns.length === 0) {
+    const firstSpawn = getFirstSpawn(room);
+    if(firstSpawn === null){
         return null;
     }
-    const firstSpawn = spawns[0];
 
     const choices: M.NodeChoice[] = [];
     log.info(`finding optimal container pos for ${sourcePos.x}, ${sourcePos.y}`);
@@ -206,6 +200,7 @@ export function InitRoomMemory(room: Room, roomName: string) {
     rm.energySources = [];
     rm.containerPositions = [];
     rm.desiredBuilders = Config.MAX_BUILDERS;
+    rm.techLevel = 0;
 
     let taskIdNum = 0;
 
@@ -265,7 +260,20 @@ export function InitRoomMemory(room: Room, roomName: string) {
     }
   }
 
-
+/**
+ *
+ * Get the First Spawn
+ * @export getFirstSpawn
+ * @param {Room} room The Room
+ * @return {*}  {(StructureSpawn | null)}
+ */
+export function getFirstSpawn(room: Room): StructureSpawn | null{
+    const spawns: StructureSpawn[] = room.find(FIND_MY_SPAWNS);
+    if (spawns.length === 0){
+        return null;
+    }
+    return spawns[0] as StructureSpawn;
+}
 /**
  *
  * Check if Assigned Tasks have no Miner
@@ -288,3 +296,37 @@ export function cleanupAssignedMiners(rm: M.RoomMemory){
     }
 }
 
+/**
+ * Get the Tech Level of the actual Room
+ * @export getTechLevel
+ * @param {Room} room The Room
+ * @param {M.RoomMemory} rm The Memory of the Room
+ * @return {*}  {number} The Tech Level
+ */
+export function getTechLevel(room: Room, rm: M.RoomMemory): number{
+    // Tech level 1 = building miners
+    // Tech level 2 = building containers
+    // Tech level 3 = building builders
+    // Tech level 4 = ?
+    let TLCreeps = room.find(FIND_MY_CREEPS);
+    let TLBuilders = _.filter(TLCreeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
+    let TLMiners = _.filter(TLCreeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_MINER);
+
+    let TLStruct =  room.find<StructureContainer>(FIND_STRUCTURES);
+    let TLContainers = _.filter(TLStruct, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
+
+
+    if (TLMiners.length < rm.minerTasks.length - 1){
+      return 1;
+    }
+
+    if (TLContainers.length !== rm.energySources.length){
+      return 2;
+    }
+
+    if (TLBuilders.length < rm.desiredBuilders - 1){
+      return 3;
+    }
+
+    return 4;
+}

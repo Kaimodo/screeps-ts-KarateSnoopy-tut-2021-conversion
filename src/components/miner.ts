@@ -15,13 +15,15 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
     const creepMem = M.cm(creep);
     if (creepMem.assignedMineTaskId === undefined) {
         log.info(`${creep.name}: Miner has no Mining Task`);
+        M.lNameRoleErr(creepMem, `has no mining Task`);
         const unassignedTasks = _.filter(rm.minerTasks, (t: M.MinerTask) => t.assignedMinerName === undefined);
         log.info('Found unassigned Miner Tasks: '+ unassignedTasks.length)
         if(unassignedTasks.length == 0){
-            log.error('No unassigned Tasks found');
+            M.lNameRoleErr(creepMem, `No unassigned Tasks found`);
         } else {
             unassignedTasks[0].assignedMinerName = creep.name;
             creepMem.assignedMineTaskId = unassignedTasks[0].taskId;
+            M.lNameRole(creepMem, `Now assigned miner task ${creepMem.assignedMineTaskId}`);
         }
     }else {
         if (creepMem.gathering && creep.store[RESOURCE_ENERGY] === creep.store.getCapacity(RESOURCE_ENERGY)){
@@ -39,7 +41,7 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
         }
         if (!creepMem.gathering) {
             // log.info(`${creep.name}: Miner has ${creep.store[RESOURCE_ENERGY]} and is working on dropping off`);
-            dropOffEnergy(room, creep, rm, minerTask);
+            dropOffEnergy(room, creep, rm, minerTask, creepMem);
         } else {
             // const energySource = creep.room.find(FIND_SOURCES_ACTIVE)[0];
             // log.info(`${creep.name}: Miner is moving to Mine`);
@@ -68,7 +70,7 @@ function harvestEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory, minerT
                 creep.moveTo(pos, {visualizePathStyle: {stroke: '33ff00'} });
                 // creep.moveTo(pos, {visualizePathStyle: {stroke: '33ff00'} });
             }else{
-                log.error(`can't find Pos: ${pos}`);
+                M.lNameRoleErr(cm, `Can't find ${pos}`);
             }
 
     } else {
@@ -77,7 +79,7 @@ function harvestEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory, minerT
         const source = Game.getObjectById(sourceId) as Source;
         const errCode = creep.harvest(source);
         if(errCode !== OK && errCode !== ERR_NOT_IN_RANGE && errCode !== ERR_NOT_ENOUGH_RESOURCES){
-            log.error(`harvester error: ${errCode}`);
+            M.lNameRoleErr(cm, `harvester error: ${errCode}`);
         }
     }
 }
@@ -88,9 +90,12 @@ function harvestEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory, minerT
  * @param {Room} room The given Room to build in
  * @param {Creep} creep The Creep which gets the building order
  * @param {M.RoomMemory} rm  The RoomMemory of the Room
+ * @param {M.CreepMemory} cm The CreepMemory
  * @return {*}  {boolean} True if building is possible
  */
-function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
+function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory, cm: M.CreepMemory): boolean{
+
+    M.lNameRole(cm, `buildIfCan ${room.name}, ${creep.name}`);
 
     // Find Container-Construction Sites
     const targets = room.find(FIND_CONSTRUCTION_SITES, {
@@ -103,17 +108,20 @@ function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
         if(status === ERR_NOT_IN_RANGE){
             const moveCode = creep.moveTo(targets[0], {visualizePathStyle: {stroke: '0000ff'}});
             if(moveCode !== OK && moveCode !== ERR_TIRED){
-                log.error(`move and got: ${moveCode}`);
+                M.lNameRoleErr(cm, `move and got ${moveCode}`);
             }
         }
         return true;
     } else {
+        let MinerStruct =  room.find<StructureContainer>(FIND_STRUCTURES);
+        let MinerContainers = _.filter(MinerStruct, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
         // Do I have all construction sites for all the containers?
         // log.debug("RMConPos: " + JSON.stringify(rm.containerPositions));
-        if(ENABLE_DEBUG_MODE) log.debug("RoomManager.containers.length: " + RoomManager.containers.length + " | rm.containerPositions.length: " + rm.containerPositions.length);
-        if(RoomManager.containers.length !== rm.containerPositions.length){
+        if(ENABLE_DEBUG_MODE) M.lNameRole(cm, `MinerContainers.length=${MinerContainers.length}. rm.containerPositions.length=${rm.containerPositions.length}`);
+        //if(ENABLE_DEBUG_MODE) log.debug("RoomManager.containers.length: " + RoomManager.containers.length + " | rm.containerPositions.length: " + rm.containerPositions.length);
+        if(MinerContainers.length !== rm.containerPositions.length){
             _.each(rm.containerPositions, (containerPos: M.PositionPlusTarget) => {
-                log.info(`Creating container at: ${containerPos.x}, ${containerPos.y}`);
+                M.lNameRole(cm, `Creating container at ${containerPos.x}, ${containerPos.y}`);
                 const roomPos: RoomPosition | null = room.getPositionAt(containerPos.x, containerPos.y);
                 if (roomPos !== null) {
                     creep.room.createConstructionSite(roomPos, STRUCTURE_CONTAINER);
@@ -131,8 +139,9 @@ function buildIfCan(room: Room, creep: Creep, rm: M.RoomMemory): boolean{
  * @param {Creep} creep The given Creep
  * @param {M.RoomMemory} rm The RoomMemory
  * @param {M.MinerTask} minerTask The given Miner task
+ * @param {M.CreepMemory} cm The Memory of given Creep
  */
-function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.MinerTask): void{
+function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.MinerTask, cm: M.CreepMemory): void{
      let target: Structure | undefined;
 
      let MinerStruct =  room.find<StructureContainer>(FIND_STRUCTURES);
@@ -140,27 +149,35 @@ function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.
      let MinerCreeps = room.find(FIND_MY_CREEPS);
      let MinerBuilders = _.filter(MinerCreeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
      // log.debug("M.MinCont: "+ MinerContainers.length + " | M.MinBuild: " + MinerBuilders.length);
-     if (minerTask.sourceContainer === undefined ||
-            MinerBuilders.length + 1 >= rm.desiredBuilders){
-            if (MinerContainers.length === rm.containerPositions.length &&
-                MinerBuilders.length + 1 >= rm.desiredBuilders){
-             const foundContainerPos = _.find(rm.containerPositions, (containerPos: M.PositionPlusTarget) => containerPos.targetId === minerTask.minerPosition.targetId);
-             if (foundContainerPos !== null){
-                 if (foundContainerPos){
+     if (minerTask.sourceContainer === undefined || rm.techLevel < 3){
+        M.lNameRoleErr(cm, `no source container or low tech`)
+        if (MinerContainers.length === rm.containerPositions.length && rm.techLevel >= 3){
+            M.lNameRole(cm, `room has containers and tech 3+`);
+            const foundContainerPos = _.find(rm.containerPositions, (containerPos: M.PositionPlusTarget) => containerPos.targetId === minerTask.minerPosition.targetId);
+            if (foundContainerPos !== null){
+                if (foundContainerPos){
                     const roomPos: RoomPosition | null = room.getPositionAt(foundContainerPos.x, foundContainerPos.y);
                     if (roomPos !== null) {
                         const targets = roomPos.lookFor("structure") as Structure[];
                         if (targets.length > 0) {
                             target = targets[0];
-                            // log.info(`Found matching containerPos ${target.id}`);
+
+                            M.lNameRole(cm, `Found matching containerPos ${target.id}`);
+
+                            minerTask.sourceContainer = {
+                                targetId: target.id,
+                                x: target.pos.x,
+                                y: target.pos.y
+                            };
                         }
                     }
-                 }
-             }
+                }
+            }
          }
 
          if (target === undefined){
-             const targets: Structure[] = creep.room.find(FIND_STRUCTURES,{
+            M.lNameRole(cm, `looking for non-container target`);
+            const targets: Structure[] = creep.room.find(FIND_STRUCTURES,{
                      filter: (structure: Structure) =>{
                          if (structure.structureType === STRUCTURE_EXTENSION){
                              const structExt: StructureExtension = structure as StructureExtension;
@@ -180,13 +197,14 @@ function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.
                  });
 
              if (targets.length > 0){
-                 target = targets[0];
+                target = targets[0];
+                creep.say(`custom`);
              }
          }
      } else {
         const targetId: Id<StructureContainer> = minerTask.sourceContainer.targetId as Id<StructureContainer>;
         target = Game.getObjectById(targetId) as Structure;
-         log.info(`Going to: ${target}`);
+        // log.info(`Going to: ${target}`);
      }
 
      if (target !== undefined){
@@ -197,15 +215,16 @@ function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.
          if (room.controller !== undefined){
              let isBuilding = false;
              if (room.controller.ticksToDowngrade > 1000){
-                 isBuilding = buildIfCan(room, creep, rm);
+                 isBuilding = buildIfCan(room, creep, rm, cm);
              }
 
              if (!isBuilding){
-                 const status = creep.upgradeController(room.controller);
+                creep.say(`upgrading`);
+                const status = creep.upgradeController(room.controller);
                  if (status === ERR_NOT_IN_RANGE){
                      const moveCode = creep.moveTo(room.controller, { visualizePathStyle: { stroke: "#ffffff" } });
                      if (moveCode !== OK && moveCode !== ERR_TIRED){
-                         log.error(`move and got: ${moveCode}`);
+                         M.lNameRoleErr(cm, `move and got ${moveCode}`);
                      }
                  }
              }

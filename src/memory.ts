@@ -201,3 +201,7 @@ export function lNameRole(cmLog: CreepMemory, logLine: string){
 export function lNameRoleErr(cmLog: CreepMemory, logLine: string){
     log.error(`[${Inscribe.color(`${cmLog.name} ${roleToString(cmLog.role)}: ${logLine}`, "red")}]`)
 }
+
+export function l(cmLog: CreepMemory): string {
+    return `${cmLog.name}: `;
+}

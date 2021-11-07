@@ -55,7 +55,8 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP-09 -> done  | 05.11.2021
 - EP-10 -> done  | 05.11.2021
 - EP-11 -> done  | 07.11.2021
-- EP-12 -> WIP -> builder, mem, miner, RoomManager
+- EP-12 -> done  | 07.11.2021
+- EP-13 -> WIP -> Builder, RoomManager
 
 ### Info Current Project Issues/errors
 

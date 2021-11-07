@@ -32,8 +32,11 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
     );
 
     if(creepMem.assignedContainerId === undefined){
-        M.lNameRoleErr(creepMem, ` not assigned to COntainer`);
+        //log.error(`${M.l(creepMem)}not assigned to container`);
         return;
+    }
+    if(rm.buildsThisTick === 0) {
+        // tryToBuildExtension(rm, creep, creepMem, room);
     }
 
     if (creepMem.gathering && creep.store[RESOURCE_ENERGY] === creep.store.getCapacity(RESOURCE_ENERGY)){
@@ -45,10 +48,10 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
         creepMem.assignedTargetId = undefined;
     }
     if(creepMem.gathering){
-        M.lNameRole(creepMem, ` builder is moving to container.`);
+        log.info(`${M.l(creepMem)}builder is moving to container`);
         pickupEnergy(creep, creepMem, rm);
     } else {
-        M.lNameRole(creepMem, ` builder is using energy.`);
+        //log.info(`${M.l(creepMen)}builder is using energy`);
         useEnergy(room, creep, creepMem);
     }
 }
@@ -79,7 +82,7 @@ function pickupEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory): void{
         creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
     }
     if (errCode !== OK && errCode !== ERR_NOT_IN_RANGE && errCode !== ERR_NOT_ENOUGH_RESOURCES){
-        M.lNameRoleErr(cm, `Transfer error: ${errCode}`);
+        log.info(`${M.l(cm)}Transfer error ${errCode}`);
     }
 }
 
@@ -115,13 +118,14 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
     // creep.say("useEnergy");
     let target: Structure | undefined;
     if (cm.assignedTargetId !== undefined){
-        target = Game.getObjectById(cm.assignedTargetId) as Structure;
+        const targetId:  Id<Structure> = cm.assignedTargetId as Id<Structure>;
+        target = Game.getObjectById(targetId) as Structure;
         if (isStructureFullOfEnergy(target)){
             cm.assignedTargetId = undefined;
             target = undefined;
         }
     }
-    M.lNameRole(cm, `cm.assignedTargetId=${cm.assignedTargetId} cm.isUpgradingController=${cm.isUpgradingController}`);
+    //log.info(`${M.l(cm)}cm.assignedTargetId=${cm.assignedTargetId} cm.isUpgradingController=${cm.isUpgradingController}`);
     if (cm.assignedTargetId === undefined && !cm.isUpgradingController){
         const targets: Structure[] = creep.room.find(FIND_STRUCTURES, {
             filter: (structure: Structure) =>{
@@ -150,7 +154,7 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
                 const moveCode = creep.moveTo(room.controller, { visualizePathStyle: { stroke: "#ffffff" } });
                 if (moveCode !== OK && moveCode !== ERR_TIRED)
                 {
-                    M.lNameRole(cm, `move and got ${moveCode}`);
+                    log.info(`${M.l(cm)}move and got ${moveCode}`);
                 }
             }
         }
@@ -168,7 +172,7 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
  */
 
 export function buildIfCan(room: Room, creep: Creep, cm: M.CreepMemory): boolean {
-    log.info(`buildIfCan ${room.name}, ${creep.name}`);
+    log.info(`${M.l(cm)}buildIfCan ${room.name}, ${creep.name}`);
 
     const targets = room.find(FIND_CONSTRUCTION_SITES) as ConstructionSite[];
     if (targets.length > 0) {
@@ -176,7 +180,7 @@ export function buildIfCan(room: Room, creep: Creep, cm: M.CreepMemory): boolean
         if (status === ERR_NOT_IN_RANGE) {
             const moveCode = creep.moveTo(targets[0], { visualizePathStyle: { stroke: "#ffffff" } });
             if (moveCode !== OK && moveCode !== ERR_TIRED) {
-                M.lNameRoleErr(cm, `move and got: ${moveCode}`);
+                log.info(`${M.l(cm)}move and got ${moveCode}`);
             }
         }
         return true;
@@ -192,6 +196,7 @@ export function buildIfCan(room: Room, creep: Creep, cm: M.CreepMemory): boolean
  * @param {M.CreepMemory} cm The Creep Memory of the Builder
  * @param {Room} room The Room
  */
+/*
 function tryToBuildExtension(rm: M.RoomMemory, creep: Creep, cm: M.CreepMemory, room: Room){
     // build extensions close to sources
     let closeToSource = false;
@@ -255,3 +260,4 @@ function tryToBuildExtension(rm: M.RoomMemory, creep: Creep, cm: M.CreepMemory, 
         }
     }
 }
+*/

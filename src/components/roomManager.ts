@@ -82,6 +82,8 @@ Profiler.registerFN(run, 'run(Creep)');
      rm.techLevel = RLib.getTechLevel(room, rm);
      rm.buildsThisTick = 0;
 
+     RLib.buildExtension(rm, room);
+
      log.info(`[${Inscribe.color(`TL=${rm.techLevel} | Mem: ${M.gm().memVersion}/${M.MemoryVersion} | M: ${miners.length}/${rm.minerTasks.length} | B: ${builders.length}/${rm.desiredBuilders} | S: ${structures.length} | Con: ${containers.length}/${rm.containerPositions.length}`, "skyblue")}]`);
  }
  Profiler.registerFN(_scanRoom, '_scanRoom');

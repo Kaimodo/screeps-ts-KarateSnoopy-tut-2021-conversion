@@ -1,6 +1,7 @@
 import {log} from '../tools/logger/logger';
 import * as M from "../memory";
-import * as RoomManager from "./roomManager";
+import * as Tools from "../tools/tools";
+// import * as RoomManager from "./roomManager";
 import * as RLib from "./Lib/lib";
 
 
@@ -14,6 +15,10 @@ import * as RLib from "./Lib/lib";
  */
 export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
     const creepMem = M.cm(creep);
+
+    // const constructionSitesT = room.find(FIND_MY_CONSTRUCTION_SITES);
+    // const extensionConstructionSitesT = _.filter(constructionSitesT, (site: ConstructionSite) => site.structureType === STRUCTURE_EXTENSION);
+    // log.debug("BuildRun :" + JSON.stringify(extensionConstructionSitesT, null, 4));
 
     if(creepMem.assignedContainerId === undefined){
         creepMem.assignedContainerId = RLib.getContainerIdWithLeastBuildersAssigned(room, rm);
@@ -36,6 +41,8 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
     }
     if (!creepMem.gathering && creep.store[RESOURCE_ENERGY] === 0){
         creepMem.gathering = true;
+        creepMem.isUpgradingController = false;
+        creepMem.assignedTargetId = undefined;
     }
     if(creepMem.gathering){
         M.lNameRole(creepMem, ` builder is moving to container.`);
@@ -53,7 +60,7 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
  * @param {M.RoomMemory} rm the RoomMemory
  */
 function pickupEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory): void{
-    // creep.say("pickUpEnnergy");
+    // creep.say("pickUpEnergy");
     const targetId: Id<StructureContainer> = cm.assignedContainerId as Id<StructureContainer>;
     const target = Game.getObjectById(targetId) as StructureContainer;
 
@@ -75,6 +82,29 @@ function pickupEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory): void{
         M.lNameRoleErr(cm, `Transfer error: ${errCode}`);
     }
 }
+
+/**
+ *
+ * Check if a Structure is filled with Energy
+ * @param {Structure} structure The Structure to check
+ * @return {*}  {boolean} true or not
+ */
+function isStructureFullOfEnergy(structure: Structure): boolean {
+    if (structure.structureType === STRUCTURE_EXTENSION){
+        const structExt: StructureExtension = structure as StructureExtension;
+        return structExt.store[RESOURCE_ENERGY] >= structExt.store.getCapacity(RESOURCE_ENERGY);
+    }
+    if (structure.structureType === STRUCTURE_SPAWN){
+        const structExt: StructureExtension = structure as StructureExtension;
+        return structExt.store[RESOURCE_ENERGY] >= structExt.store.getCapacity(RESOURCE_ENERGY);
+    }
+    if (structure.structureType === STRUCTURE_TOWER){
+        const structExt: StructureExtension = structure as StructureExtension;
+        return structExt.store[RESOURCE_ENERGY] >= structExt.store.getCapacity(RESOURCE_ENERGY);
+    }
+    return true
+}
+
 /**
  * Use Energy carried
  * @param {Room} room The current Room
@@ -83,36 +113,44 @@ function pickupEnergy(creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory): void{
  */
 function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
     // creep.say("useEnergy");
-    const targets: Structure[] = creep.room.find(FIND_STRUCTURES,{
-        filter: (structure: Structure) => {
-            if (structure.structureType === STRUCTURE_EXTENSION){
-                    const structExt: StructureExtension = structure as StructureExtension;
-                    return structExt.store[RESOURCE_ENERGY] < structExt.store.getCapacity(RESOURCE_ENERGY)
-                }
-                if (structure.structureType === STRUCTURE_SPAWN){
-                    const structSpawn: StructureSpawn = structure as StructureSpawn;
-                    return structSpawn.store[RESOURCE_ENERGY] < structSpawn.store.getCapacity(RESOURCE_ENERGY);
-                }
-                if (structure.structureType === STRUCTURE_TOWER){
-                    const structTower: StructureTower = structure as StructureTower;
-                    return structTower.store[RESOURCE_ENERGY] < structTower.store.getCapacity(RESOURCE_ENERGY);
-                }
-
-                return false;
+    let target: Structure | undefined;
+    if (cm.assignedTargetId !== undefined){
+        target = Game.getObjectById(cm.assignedTargetId) as Structure;
+        if (isStructureFullOfEnergy(target)){
+            cm.assignedTargetId = undefined;
+            target = undefined;
         }
-    });
-    if(targets.length > 0){
-        if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE){
-            creep.moveTo(targets[0], { visualizePathStyle: { stroke: "#ffffff" } });
+    }
+    M.lNameRole(cm, `cm.assignedTargetId=${cm.assignedTargetId} cm.isUpgradingController=${cm.isUpgradingController}`);
+    if (cm.assignedTargetId === undefined && !cm.isUpgradingController){
+        const targets: Structure[] = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure: Structure) =>{
+                return !isStructureFullOfEnergy(structure);
+            }
+        });
+        if (targets.length > 0){
+            target = targets[0];
+            cm.assignedTargetId = target.id;
         }
-    } else {
+        else{
+            cm.isUpgradingController = true;
+        }
+    }
+    if (target !== undefined){
+        //creep.say(`transferring`);
+        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE){
+            creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
+        }
+    }else{
         if (room.controller !== undefined){
-            creep.say("upgrading");
+            //creep.say(`upgrading`);
             const status = creep.upgradeController(room.controller);
-            if (status === ERR_NOT_IN_RANGE){
+            if (status === ERR_NOT_IN_RANGE)
+            {
                 const moveCode = creep.moveTo(room.controller, { visualizePathStyle: { stroke: "#ffffff" } });
-                if (moveCode !== OK && moveCode !== ERR_TIRED){
-                    M.lNameRoleErr(cm, `move and got: ${moveCode}`);
+                if (moveCode !== OK && moveCode !== ERR_TIRED)
+                {
+                    M.lNameRole(cm, `move and got ${moveCode}`);
                 }
             }
         }
@@ -194,7 +232,8 @@ function tryToBuildExtension(rm: M.RoomMemory, creep: Creep, cm: M.CreepMemory, 
             }
         }
         if (!tooCloseToOther){
-            const extensionConstructionSites = _.filter(RoomManager.constructionSites, (site: ConstructionSite) => site.structureType === STRUCTURE_EXTENSION);
+            const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+            const extensionConstructionSites = _.filter(constructionSites, (site: ConstructionSite) => site.structureType === STRUCTURE_EXTENSION);
             for (const constructionSite of extensionConstructionSites){
                 const range = constructionSite.pos.getRangeTo(creep);
                 if (range <= 1){

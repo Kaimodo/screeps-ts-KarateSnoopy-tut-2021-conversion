@@ -1,6 +1,6 @@
 import {log} from '../tools/logger/logger';
 import * as M from "../memory";
-import * as RoomManager from "./roomManager";
+// import * as RoomManager from "./roomManager";
 import {ENABLE_DEBUG_MODE} from "../config";
 
 /**
@@ -205,6 +205,9 @@ function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.
         const targetId: Id<StructureContainer> = minerTask.sourceContainer.targetId as Id<StructureContainer>;
         target = Game.getObjectById(targetId) as Structure;
         // log.info(`Going to: ${target}`);
+        if (target === null){
+            minerTask.sourceContainer = undefined;
+        }
      }
 
      if (target !== undefined){

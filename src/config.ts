@@ -16,7 +16,8 @@ export const FIRST_ROOM_NAME = Game.spawns.Spawn1.room.name;
 export const SPAWNNAME: string = 'Spawn1';
 
 // Number of Builders
-export const MAX_BUILDERS: number = 2;
+export const MAX_BUILDERS: number = 4;
+
 
 //Debug Mode
 import { LogLevel } from "tools/logger/logLevel";

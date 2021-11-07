@@ -47,7 +47,17 @@ export function _clearMemory(): void {
   }
 }
 
-
+/**
+ *
+ * Show CPU used for parsing the Memory
+ * @export CpuUsedParsing
+ */
+export function CpuUsedParsing(){
+  let stringified = JSON.stringify(Memory);
+  let startCpu = Game.cpu.getUsed();
+  JSON.parse(stringified);
+  log.info("CPU used on Memory parsing: ", Game.cpu.getUsed() - startCpu);
+}
 
 /**
  * Generate Pixel if Bucket >= number

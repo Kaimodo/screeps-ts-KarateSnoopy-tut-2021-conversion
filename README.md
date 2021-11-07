@@ -54,7 +54,8 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP-08 -> done  | 05.11.2021
 - EP-09 -> done  | 05.11.2021
 - EP-10 -> done  | 05.11.2021
-- EP-11 -> WIP -> builder, mem, miner, RoomManager
+- EP-11 -> done  | 07.11.2021
+- EP-12 -> WIP -> builder, mem, miner, RoomManager
 
 ### Info Current Project Issues/errors
 
@@ -70,6 +71,15 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
   setMem(number) To set new Memory version on the Fly | getMem() To get the actual Memory version
 - EP-08 End: The clearing memory is working Properly, had a look at it the last 2 Episodes.
 - EP-09 End: i decided to restructure the Folders a bit to get an better overview. The Main Roommanager -Methods are in Roommanager. The Sub-Methods in the Lib.
+- EP-10 End: I recognized that exporting Creep[], Builder[] and all that stuff doesn't work, cause it always returns empty objects. So i changed the Code at many parts. To get the Problems just change the line
+  ```js
+  export let creeps: Creep[]
+  ```
+  to
+  ```js
+  let creeps: Creep[]
+  ```
+  and see where the failures pop up.
 
 ### Helper
 

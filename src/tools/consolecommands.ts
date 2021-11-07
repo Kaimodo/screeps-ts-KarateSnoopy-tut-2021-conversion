@@ -39,6 +39,15 @@ export const ConsoleCommands = {
   },
 
   /**
+   * Show CPU used for parsing Memory
+   */
+  CpuUsedParsing(){
+    let stringified = JSON.stringify(Memory);
+    let startCpu = Game.cpu.getUsed();
+    JSON.parse(stringified);
+    console.log("CPU used on Memory parsing: " + (Game.cpu.getUsed() - startCpu));
+  },
+  /**
    * Kill all Creeps in given Room
    * @param roomName The Room Name
    */

@@ -3,7 +3,7 @@ import * as Config from "config";
 import {log} from '../../tools/logger/logger';
 import {ENABLE_DEBUG_MODE} from "config";
 import * as M from "memory";
-import * as RoomManager from "../roomManager";
+// import * as RoomManager from "../roomManager";
 
 /**
  * Spawn the Creeps if necessary
@@ -30,6 +30,7 @@ export function spawnCreep(spawn: StructureSpawn, bodyParts: BodyPartConstant[],
                 role: role,
                 roleString: M.roleToString(role),
                 gathering: true,
+                isUpgradingController: false,
             }
         }
 
@@ -166,7 +167,9 @@ export function getContainerIdWithLeastBuildersAssigned(room: Room, rm: M.RoomMe
     _.each(LibCont, (container: StructureContainer) => {
 
         let count = 0;
-        _.each(RoomManager.builders, (tmpBuilder: Creep) => {
+        const creeps: Creep[] = room.find(FIND_MY_CREEPS);
+        const builders = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
+        _.each(builders, (tmpBuilder: Creep) => {
             if(M.cm(tmpBuilder).assignedContainerId === container.id) {
                 count++;
             }

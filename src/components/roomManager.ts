@@ -8,13 +8,13 @@ import * as Inscribe from "screeps-inscribe";
 import {ENABLE_DEBUG_MODE} from "config";
 import * as RLib from "./lib/lib";
 
-export let creeps: Creep[];
-export let creepCount: number = 0;
-export let miners: Creep[] = [];
-export let builders: Creep[] = [];
-export let structures: Structure[] = [];
-export let containers: StructureContainer[] = [];
-export let constructionSites: ConstructionSite[] = [];
+let creeps: Creep[];
+let creepCount: number = 0;
+let miners: Creep[] = [];
+let builders: Creep[] = [];
+let structures: Structure[] = [];
+let containers: StructureContainer[] = [];
+let constructionSites: ConstructionSite[] = [];
 
 /**
  * The Main Function in every Room witch is executed
@@ -54,7 +54,12 @@ export function run(room: Room, rm: M.RoomMemory): void
             builder.run(room, creep, rm);
         }
         else {
-            creepMem.role = M.CreepRoles.ROLE_MINER;
+            creepMem.name = creep.name;
+            if(creep.name.search("ROLE_MINER") >= 0){
+                creepMem.role = M.CreepRoles.ROLE_MINER;
+            } else if (creepMem.name.search("ROLE_BUILDER") >= 0){
+                creepMem.role = M.CreepRoles.ROLE_BUILDER;
+            }
         }
     });
 }

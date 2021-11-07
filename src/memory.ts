@@ -1,7 +1,7 @@
 import * as Inscribe from "screeps-inscribe";
 import {log} from "./tools/logger/logger";
 // Memory and other Things
-export let MemoryVersion = 18;
+export let MemoryVersion = 2;
 
 /**
  * @export number Set the current Game MemoryVersion
@@ -157,6 +157,8 @@ export interface CreepMemory {
     assignedMineTaskId?: number;
     gathering: boolean;
     assignedContainerId?: string;
+    assignedTargetId?: string;
+    isUpgradingController: boolean;
 }
 
 

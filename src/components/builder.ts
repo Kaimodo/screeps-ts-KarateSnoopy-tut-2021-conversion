@@ -1,7 +1,6 @@
 import {log} from '../tools/logger/logger';
 import * as M from "../memory";
 import * as Tools from "../tools/tools";
-// import * as RoomManager from "./roomManager";
 import * as RLib from "./Lib/lib";
 
 
@@ -35,9 +34,6 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
         //log.error(`${M.l(creepMem)}not assigned to container`);
         return;
     }
-    if(rm.buildsThisTick === 0) {
-        // tryToBuildExtension(rm, creep, creepMem, room);
-    }
 
     if (creepMem.gathering && creep.store[RESOURCE_ENERGY] === creep.store.getCapacity(RESOURCE_ENERGY)){
         creepMem.gathering = false;
@@ -48,12 +44,13 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
         creepMem.assignedTargetId = undefined;
     }
     if(creepMem.gathering){
-        log.info(`${M.l(creepMem)}builder is moving to container`);
+        // log.info(`${M.l(creepMem)}builder is moving to container`);
         pickupEnergy(creep, creepMem, rm);
     } else {
-        //log.info(`${M.l(creepMen)}builder is using energy`);
+        // log.info(`${M.l(creepMem)}builder is using energy`);
         useEnergy(room, creep, creepMem);
     }
+    tryToBuildRoad(rm, creep, room, creepMem);
 }
 
 /**
@@ -136,9 +133,9 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
             target = targets[0];
             cm.assignedTargetId = target.id;
         }
-        else{
-            cm.isUpgradingController = true;
-        }
+    }
+    if (room.controller !== undefined && room.controller.ticksToDowngrade < 1000){
+        target = undefined;
     }
     if (target !== undefined){
         //creep.say(`transferring`);
@@ -146,8 +143,19 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
             creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
         }
     }else{
+        if (room.controller !== undefined && room.controller.ticksToDowngrade > 1000){
+            if(repairIfCan(room, creep, cm)){
+                return;
+            }
+
+            if(buildIfCan(room, creep, cm)){
+                return;
+            }
+
+        }
         if (room.controller !== undefined){
             //creep.say(`upgrading`);
+            cm.isUpgradingController = true;
             const status = creep.upgradeController(room.controller);
             if (status === ERR_NOT_IN_RANGE)
             {
@@ -161,103 +169,99 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
     }
 }
 
-
 /**
- * Check if there are Construction site and build them
- * @export buildIfCan
- * @param {Room} room The Room in which the Builder works
- * @param {Creep} creep The Creep which is the Builder
- * @param {M.CreepMemory} cm The Creep Memory of the Builder
- * @return {*}  {boolean} True if something can be build
+ *
+ * Repair Target if able to
+ * @param {Room} room The Room of the Target
+ * @param {Creep} creep The repairing Creep
+ * @param {M.CreepMemory} cm The Memory of this Creep
+ * @return {*}  {boolean} Can/not repair
  */
+function repairIfCan(room: Room, creep: Creep, cm: M.CreepMemory): boolean{
+    let repairTarget: Structure | undefined;
 
-export function buildIfCan(room: Room, creep: Creep, cm: M.CreepMemory): boolean {
-    log.info(`${M.l(cm)}buildIfCan ${room.name}, ${creep.name}`);
+    let structures: Structure[] = room.find<StructureContainer>(FIND_STRUCTURES);
+    let notRoadNeedingRepair: Structure[] = _.filter(structures, (structure) => {
+        if (structure.structureType !== STRUCTURE_ROAD){
+            const hitsToRepair = structure.hitsMax - structure.hits;
+            if (hitsToRepair > structure.hitsMax * 0.25) {
+                return true;
+            }
+        }
+        return false;
+    }) as Structure[];
+    // log.debug(`${M.l(cm)}Not Roads to repair: ${notRoadNeedingRepair}`);
 
-    const targets = room.find(FIND_CONSTRUCTION_SITES) as ConstructionSite[];
-    if (targets.length > 0) {
-        const status = creep.build(targets[0]);
-        if (status === ERR_NOT_IN_RANGE) {
-            const moveCode = creep.moveTo(targets[0], { visualizePathStyle: { stroke: "#ffffff" } });
-            if (moveCode !== OK && moveCode !== ERR_TIRED) {
+    if (notRoadNeedingRepair.length > 0){
+        repairTarget = notRoadNeedingRepair[0];
+    }
+    if (repairTarget === undefined){
+        const structuresUnderFeet = creep.pos.lookFor(LOOK_STRUCTURES) as Structure[];
+        if (structuresUnderFeet.length > 0){
+            const roadsUnderFeed = _.filter(structuresUnderFeet, (structure) => structure.structureType === STRUCTURE_ROAD) as StructureRoad[];
+            if (roadsUnderFeed.length > 0){
+                if (roadsUnderFeed[0].hits + 50 < roadsUnderFeed[0].hitsMax){
+                    repairTarget = roadsUnderFeed[0];
+                }
+            }
+        }
+    }
+    if (repairTarget !== undefined) {
+        const status = creep.repair(repairTarget);
+        if (status === ERR_NOT_IN_RANGE){
+            const moveCode = creep.moveTo(repairTarget, { visualizePathStyle: { stroke: "#ffffff" } });
+            if (moveCode !== OK && moveCode !== ERR_TIRED){
                 log.info(`${M.l(cm)}move and got ${moveCode}`);
             }
         }
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 /**
- * Try to build an Extension
- * @param {M.RoomMemory} rm The RoomMemory
- * @param {Creep} creep The Creep
- * @param {M.CreepMemory} cm The Creep Memory of the Builder
+ *
+ * Try to build on construction Site
  * @param {Room} room The Room
+ * @param {Creep} creep The building Creep
+ * @param {M.CreepMemory} cm Creeps memory
+ * @return {*}  {boolean} can/not build
  */
-/*
-function tryToBuildExtension(rm: M.RoomMemory, creep: Creep, cm: M.CreepMemory, room: Room){
-    // build extensions close to sources
-    let closeToSource = false;
-    for (const sourcePos of rm.energySources){
-        const sourceRoomPos = room.getPositionAt(sourcePos.x, sourcePos.y);
-        if (sourceRoomPos != null){
-            const range = sourceRoomPos.getRangeTo(creep.pos);
-            if (range < 12){
-                M.lNameRole(cm, `Range To Source: ${range}`);
-                closeToSource = true;
-                break;
-            }
-        }
-    }
-    const firstSpawn = RLib.getFirstSpawn(room);
-    let closeToSpawn = true;
-    if (firstSpawn != null){
-        closeToSpawn = false;
+function buildIfCan(room: Room, creep: Creep, cm: M.CreepMemory): boolean{
+    let constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+    if (constructionSites.length > 0){
+         const status = creep.build(constructionSites[0]);
+         if (status === ERR_NOT_IN_RANGE){
+             const moveCode = creep.moveTo(constructionSites[0], { visualizePathStyle: { stroke: "#ffffff" } });
+             if (moveCode !== OK && moveCode !== ERR_TIRED){
+                 log.info(`${M.l(cm)}move and got ${moveCode}`);
+             }
+         }
+         return true;
+     } else {
+         return false;
+     }
+ }
 
-        // and close to spawn if spawn in room
-        const range = firstSpawn.pos.getRangeTo(creep.pos);
-        if (range < 6 && range > 2){
-            closeToSpawn = true;
-            M.lNameRole(cm, `Range To Spawn: ${range}`);
-        }
-    }
-    if (closeToSource && closeToSpawn){
-        M.lNameRole(cm, `trying to build extension`);
 
-        let tooCloseToOther = false;
-        const extensions = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_EXTENSION } }) as StructureExtension[];
-        for (const extension of extensions){
-            const range = extension.pos.getRangeTo(creep);
-            if (range <= 1){
-                M.lNameRoleErr(cm, `Too close to another extension: ${range}`);
-                tooCloseToOther = true;
-                break;
-            }
-        }
-        if (!tooCloseToOther){
-            const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
-            const extensionConstructionSites = _.filter(constructionSites, (site: ConstructionSite) => site.structureType === STRUCTURE_EXTENSION);
-            for (const constructionSite of extensionConstructionSites){
-                const range = constructionSite.pos.getRangeTo(creep);
-                if (range <= 1){
-                    M.lNameRoleErr(cm, `Too close to another ext const site: ${range}`);
-                    tooCloseToOther = true;
-                    break;
-                }
-            }
-        }
-        if (!tooCloseToOther){
-            const errCode = creep.room.createConstructionSite(creep.pos, STRUCTURE_EXTENSION);
-            if (errCode === OK){
-                M.lNameRole(cm, `Creep created extension at ${creep.pos}`);
-                rm.buildsThisTick++;
-                return;
-            } else {
-                M.lNameRoleErr(cm, `ERROR: created extension at ${creep.pos} ${errCode}`);
-            }
-        }
-    }
-}
-*/
+ /**
+  * Try to build a road
+  * @param rm The Room Memory
+  * @param creep The building Creep
+  * @param room The Room where to build
+  * @param cm Creeps memory
+  * @returns can/not build
+  */
+ function tryToBuildRoad(rm: M.RoomMemory, creep: Creep, room: Room, cm: M.CreepMemory){
+     if ((Game.time + 5) % 10 === 0){
+        // log.info(`${M.l(cm)} ${creep.name}: tryToBuildRoad`);
+        if (rm.techLevel >= 5 && rm.buildsThisTick === 0){
+             const errCode = creep.room.createConstructionSite(creep.pos, STRUCTURE_ROAD);
+             if (errCode === OK){
+                 log.info(`${M.l(cm)} Created road at ${creep.pos}`);
+                 rm.buildsThisTick++;
+                 return;
+             }
+         }
+     }
+ }

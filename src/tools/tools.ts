@@ -111,6 +111,7 @@ export function log_info() {
     console.log(
       `[${Inscribe.color(Config.FIRST_ROOM_NAME, "skyblue")}]| Game-Tick: ${Game.time}` + "| CPU Used: " + Game.cpu.getUsed() + "| Buck: " + Game.cpu.bucket
     );
+    CpuUsedParsing();
   }
 }
 
@@ -128,6 +129,14 @@ export function ClearNonExistingCreeMemory() {
     }
   }
 }
-
+/**
+ * For debugging only. makes Creep say the actual Function
+ * @export sayF
+ * @param {Creep} creep The Creep
+ * @param {string} functionName The Function Name
+ */
+export function sayF(creep: Creep, functionName: string):void {
+  creep.say(functionName);
+}
 
 

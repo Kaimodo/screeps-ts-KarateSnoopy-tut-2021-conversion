@@ -1,4 +1,4 @@
-// EP8 start
+// EP14 start
 const startCpu = Game.cpu.getUsed()
 import { ErrorMapper } from "tools/ErrorMapper";
 
@@ -24,7 +24,6 @@ import * as M from "memory";
 
 //New Script loaded
 console.log(`[${Inscribe.color("New Script loaded", "red")}]`);
-// log.info(`[${Inscribe.color("TEXT HERE", "red")}]`)
 
 // Check if Profiler is enabled in Config
 if (USE_PROFILER) {

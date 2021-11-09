@@ -1,7 +1,7 @@
 import * as Inscribe from "screeps-inscribe";
 import {log} from "./tools/logger/logger";
 // Memory and other Things
-export let MemoryVersion = 2;
+export let MemoryVersion = 5;
 
 /**
  * @export number Set the current Game MemoryVersion

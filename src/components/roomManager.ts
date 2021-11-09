@@ -15,9 +15,12 @@ let builders: Creep[] = [];
 let structures: Structure[] = [];
 let containers: StructureContainer[] = [];
 let constructionSites: ConstructionSite[] = [];
+let extensions: StructureExtension[] = [];
+let notRoadNeedingRepair: Structure[] = [];
 
 /**
  * The Main Function in every Room witch is executed
+ * @export run
  * @param room The Room in which run is started
  * @param rm The Memory for the Room
  */
@@ -72,20 +75,49 @@ Profiler.registerFN(run, 'run(Creep)');
  */
  function _scanRoom(room: Room, rm: M.RoomMemory)
  {
-     creeps = room.find(FIND_MY_CREEPS);
-     creepCount = _.size(creeps);
-     miners = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_MINER);
-     builders = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
-     structures = room.find<StructureContainer>(FIND_STRUCTURES);
-     containers = _.filter(structures, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
-     constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
-     rm.techLevel = RLib.getTechLevel(room, rm);
-     rm.buildsThisTick = 0;
+    creeps = room.find(FIND_MY_CREEPS);
+    creepCount = _.size(creeps);
+    miners = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_MINER);
+    builders = _.filter(creeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
+    structures = room.find<StructureContainer>(FIND_STRUCTURES);
+    containers = _.filter(structures, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
+    extensions = _.filter(structures, (structure) => structure.structureType === STRUCTURE_EXTENSION) as StructureExtension[];
+    notRoadNeedingRepair = _.filter(structures, (structure) => {
+        if (structure.structureType !== STRUCTURE_ROAD){
+            const hitsToRepair = structure.hitsMax - structure.hits;
+            if (hitsToRepair > structure.hitsMax * 0.25) {
+                return true;
+            }
+        }
+        return false;
+    }) as Structure[];
 
-     RLib.buildExtension(rm, room);
+    // constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+    constructionSites = _.sortBy(constructionSites, (constructionSite: ConstructionSite) => constructionSite.id);
+    notRoadNeedingRepair = _.sortBy(notRoadNeedingRepair, (struct: Structure) => struct.id);
 
-     log.info(`[${Inscribe.color(`TL=${rm.techLevel} | Mem: ${M.gm().memVersion}/${M.MemoryVersion} | M: ${miners.length}/${rm.minerTasks.length} | B: ${builders.length}/${rm.desiredBuilders} | S: ${structures.length} | Con: ${containers.length}/${rm.containerPositions.length}`, "skyblue")}]`);
- }
+    let numTowersToBuild = 0;
+    let numExtensionToBuild = 0;
+    if (room.controller != null){
+        switch (room.controller.level){
+            case 2: numTowersToBuild = 0; numExtensionToBuild = 5; break;
+            case 3: numTowersToBuild = 1; numExtensionToBuild = 10; break;
+            case 4: numTowersToBuild = 1; numExtensionToBuild = 20; break;
+            case 5: numTowersToBuild = 2; numExtensionToBuild = 30; break;
+            case 6: numTowersToBuild = 2; numExtensionToBuild = 40; break;
+            case 7: numTowersToBuild = 3; numExtensionToBuild = 50; break;
+            case 8: numTowersToBuild = 8; numExtensionToBuild = 60; break;
+        }
+    }
+    rm.techLevel = RLib.getTechLevel(room, rm, numExtensionToBuild);
+    rm.buildsThisTick = 0;
+
+    if(Game.time % 10 === 0){
+        RLib.buildExtension(rm, room, numExtensionToBuild);
+    }
+
+    log.info(`[${Inscribe.color(`TL=${rm.techLevel} | Mem=${M.gm().memVersion}/${M.MemoryVersion} | M=${miners.length}/${rm.minerTasks.length} | B=${builders.length}/${rm.desiredBuilders} | S=${structures.length} | Con=${containers.length}/${rm.containerPositions.length} | Ext=${extensions.length}/${numExtensionToBuild} | Rep=${notRoadNeedingRepair.length}`, "skyblue")}]`);
+}
  Profiler.registerFN(_scanRoom, '_scanRoom');
 
 

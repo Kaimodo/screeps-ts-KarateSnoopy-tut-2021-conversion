@@ -197,7 +197,7 @@ function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.
 
              if (targets.length > 0){
                 target = targets[0];
-                creep.say(`custom`);
+                creep.say(`custom: `);
              }
          }
      } else {

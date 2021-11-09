@@ -120,7 +120,7 @@ function getOptimalExtensionPosition(room: Room, rm: M.RoomMemory, extPositions:
             let range = 0;
             _.each(sources, (source: Source) => {
               const rangeToSource = source.pos.getRangeTo(x, y);
-                if (rangeToSource <= 2) {
+                if (rangeToSource <= 3) {
                   tooClose = true;
                 }
                 range += rangeToSource;
@@ -156,26 +156,11 @@ function getOptimalExtensionPosition(room: Room, rm: M.RoomMemory, extPositions:
  * @export buildExtension
  * @param {M.RoomMemory} rm The Room Memory
  * @param {Room} room The Room in which to build
+ * @param {number} Number of Extensions to build
  * @return {*}
  */
-export function buildExtension(rm: M.RoomMemory, room: Room){
-  if(room.controller === null){
-    return;
-  }
-  let numTowersToBuild = 0;
-  let numExtensionToBuild = 0;
-  if(room.controller) {
-    let numTowersToBuild = 0;
-    let numExtensionToBuild = 0;
-    switch (room.controller.level){
-      case 2: numTowersToBuild = 0; numExtensionToBuild = 5; break;
-      case 3: numTowersToBuild = 1; numExtensionToBuild = 10; break;
-      case 4: numTowersToBuild = 1; numExtensionToBuild = 20; break;
-      case 5: numTowersToBuild = 2; numExtensionToBuild = 30; break;
-      case 6: numTowersToBuild = 2; numExtensionToBuild = 40; break;
-      case 7: numTowersToBuild = 3; numExtensionToBuild = 50; break;
-      case 8: numTowersToBuild = 8; numExtensionToBuild = 60; break;
-    }
+export function buildExtension(rm: M.RoomMemory, room: Room, numExtensionToBuild: number){
+
     const extensions = room.find(FIND_STRUCTURES, { filter: (structure: Structure) => (structure.structureType === STRUCTURE_EXTENSION) });
     const extConstructionSites = room.find(FIND_MY_CONSTRUCTION_SITES, { filter: (structure: ConstructionSite) => (structure.structureType === STRUCTURE_EXTENSION) });
     const numExtensionsBuilt = extensions.length + extConstructionSites.length;
@@ -183,27 +168,27 @@ export function buildExtension(rm: M.RoomMemory, room: Room){
 
     log.info(`[${Inscribe.color(`numExtensionToBuild=${numExtensionToBuild} numExtensionsBuilt=${numExtensionsBuilt} numExtensionsNeeded=${numExtensionsNeeded}`, "#5CC9DF")}]`)
 
-    const extPos: RoomPosition[] = [];
-    _.each(extensions, (extension: StructureExtension) => extPos.push(extension.pos));
-    _.each(extConstructionSites, (extension: ConstructionSite) => extPos.push(extension.pos));
-
-    //for (let i = 0; i < numExtensionsNeeded; i++)
     if (numExtensionsNeeded > 0){
-      const roomPos: RoomPosition | null = getOptimalExtensionPosition(room, rm, extPos);
-      if (roomPos != null){
-        const errCode = room.createConstructionSite(roomPos, STRUCTURE_EXTENSION);
-        if (errCode === OK) {
-          log.info(`Created extension at ${roomPos}`);
-          return;
+        const extPos: RoomPosition[] = [];
+        _.each(extensions, (extension: StructureExtension) => extPos.push(extension.pos));
+        _.each(extConstructionSites, (extension: ConstructionSite) => extPos.push(extension.pos));
+
+        log.info(`numExtensionsNeeded=${numExtensionsNeeded}`);
+        const roomPos: RoomPosition | null = getOptimalExtensionPosition(room, rm, extPos);
+        if (roomPos != null){
+            const errCode = room.createConstructionSite(roomPos, STRUCTURE_EXTENSION);
+            if (errCode === OK){
+                log.info(`Created extension at ${roomPos}`);
+                return;
+            } else {
+                log.info(`ERROR: created extension at ${roomPos} ${errCode}`);
+            }
         } else {
-          log.info(`ERROR: created extension at ${roomPos} ${errCode}`);
+            log.info(`ERROR: coudln't create more extensions`);
         }
-      } else {
-        log.info(`ERROR: couldn't create more extensions`);
-      }
     }
-  }
 }
+
 
 /**
  * Get the Optimal Position to build Container. (Between Source and SPawn)
@@ -426,13 +411,15 @@ export function cleanupAssignedMiners(rm: M.RoomMemory){
  * @export getTechLevel
  * @param {Room} room The Room
  * @param {M.RoomMemory} rm The Memory of the Room
+ * @param {number} The Number of Extensions
  * @return {*}  {number} The Tech Level
  */
-export function getTechLevel(room: Room, rm: M.RoomMemory): number{
+export function getTechLevel(room: Room, rm: M.RoomMemory, numExtensionToBuild: number): number{
     // Tech level 1 = building miners
     // Tech level 2 = building containers
     // Tech level 3 = building builders
     // Tech level 4 = ?
+    let extensions = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_EXTENSION } }) as StructureExtension[];
     let TLCreeps = room.find(FIND_MY_CREEPS);
     let TLBuilders = _.filter(TLCreeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
     let TLMiners = _.filter(TLCreeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_MINER);
@@ -453,5 +440,9 @@ export function getTechLevel(room: Room, rm: M.RoomMemory): number{
       return 3;
     }
 
-    return 4;
+    if (extensions.length < numExtensionToBuild){
+        return 4;
+    }
+
+    return 5;
 }

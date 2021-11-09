@@ -56,7 +56,8 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP-10 -> done  | 05.11.2021
 - EP-11 -> done  | 07.11.2021
 - EP-12 -> done  | 07.11.2021
-- EP-13 -> WIP -> Builder, RoomManager
+- EP-13 -> done  | 09.11.2021
+- EP-14 WIP -> Builder, Miner, RoomManager, mem
 
 ### Info Current Project Issues/errors
 
@@ -81,6 +82,7 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
   let creeps: Creep[]
   ```
   and see where the failures pop up.
+- EP-13 End: It took me again some try and Error cause the Original Code forced some Trouble. But Builders now build Extensions and Roads as they should.
 
 ### Helper
 

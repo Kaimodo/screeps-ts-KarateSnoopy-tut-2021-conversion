@@ -41,6 +41,13 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
     if (!creepMem.gathering && creep.store[RESOURCE_ENERGY] === 0){
         creepMem.gathering = true;
         creepMem.isUpgradingController = false;
+        if (creepMem.assignedTargetId !== undefined){
+            const assignedTargetId: Id<Structure> = creepMem.assignedContainerId as Id<Structure>;
+            const target = Game.getObjectById(assignedTargetId) as Structure;
+            if (target.structureType === STRUCTURE_EXTENSION) {
+                RLib.removeAssignedExt(target.id, rm);
+            }
+        }
         creepMem.assignedTargetId = undefined;
     }
     if(creepMem.gathering){
@@ -48,9 +55,26 @@ export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
         pickupEnergy(creep, creepMem, rm);
     } else {
         // log.info(`${M.l(creepMem)}builder is using energy`);
-        useEnergy(room, creep, creepMem);
+        useEnergy(room, creep, creepMem, rm);
     }
     tryToBuildRoad(rm, creep, room, creepMem);
+}
+
+/**
+ *
+ * Check if Extension is already assigned
+ * @param {Structure} structure The Structure to check
+ * @param {M.RoomMemory} rm The RoomMemory
+ * @return {*}  {boolean}
+ */
+function isAlreadyTaken(structure: Structure, rm: M.RoomMemory): boolean{
+    if (structure.structureType === STRUCTURE_EXTENSION) {
+        const isAssigned = _.find(rm.extensionIdsAssigned, (ext: string) => ext === structure.id);
+        if (isAssigned !== undefined) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -110,14 +134,18 @@ function isStructureFullOfEnergy(structure: Structure): boolean {
  * @param {Room} room The current Room
  * @param {Creep} creep The current Creep
  * @param {M.CreepMemory} cm The Creep Memory of the Builder
+ * @param {M.RoomMemory} rm The Memory of the Room
  */
-function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
+function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory): void {
     // creep.say("useEnergy");
     let target: Structure | undefined;
     if (cm.assignedTargetId !== undefined){
         const targetId:  Id<Structure> = cm.assignedTargetId as Id<Structure>;
         target = Game.getObjectById(targetId) as Structure;
         if (isStructureFullOfEnergy(target)){
+            if (target.structureType === STRUCTURE_EXTENSION) {
+                RLib.removeAssignedExt(target.id, rm);
+            }
             cm.assignedTargetId = undefined;
             target = undefined;
         }
@@ -126,12 +154,17 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory): void {
     if (cm.assignedTargetId === undefined && !cm.isUpgradingController){
         const targets: Structure[] = creep.room.find(FIND_STRUCTURES, {
             filter: (structure: Structure) =>{
-                return !isStructureFullOfEnergy(structure);
+                return !isStructureFullOfEnergy(structure) && !isAlreadyTaken(structure, rm);
             }
         });
         if (targets.length > 0){
             target = targets[0];
             cm.assignedTargetId = target.id;
+            if (target.structureType === STRUCTURE_EXTENSION) {
+                // log.info(`${M.l(cm)}Assigned ext ${target.id}`);
+                // log.info(`${M.l(cm)}rm.ExtId ${JSON.stringify(rm.extensionIdsAssigned)}`);
+                rm.extensionIdsAssigned.push(target.id);
+            }
         }
     }
     if (room.controller !== undefined && room.controller.ticksToDowngrade < 1000){

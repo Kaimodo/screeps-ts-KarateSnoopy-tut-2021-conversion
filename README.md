@@ -57,7 +57,8 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP-11 -> done  | 07.11.2021
 - EP-12 -> done  | 07.11.2021
 - EP-13 -> done  | 09.11.2021
-- EP-14 WIP -> Builder, Miner, RoomManager, mem
+- EP-14 -> done  | 09.11.2021
+- EP-15 --> WIP
 
 ### Info Current Project Issues/errors
 
@@ -83,6 +84,7 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
   ```
   and see where the failures pop up.
 - EP-13 End: It took me again some try and Error cause the Original Code forced some Trouble. But Builders now build Extensions and Roads as they should.
+- EP-14 End: If u just update to the new Code and load it up you'll get a undefined error when pushing rm.extensionIdsAssigned. Just change the Memory-Version to get rid of it. Via ingame: cc.setMem(number) or direct in the Code in the Memory.ts.
 
 ### Helper
 

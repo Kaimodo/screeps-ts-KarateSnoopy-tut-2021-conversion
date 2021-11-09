@@ -94,6 +94,7 @@ export interface MinerTask {
 export class RoomMemory {
     public roomName: string;
     public minerTasks!: MinerTask[];
+    public energyLevel: number = 0;
     public desiredBuilders!: number;
     public energySources!: PositionPlusTarget[];
     public containerPositions!: PositionPlusTarget[];
@@ -101,6 +102,7 @@ export class RoomMemory {
     public buildsThisTick: number = 0;
     public spawnText?: string;
     public spawnTextId?: number | string;
+    public extensionIdsAssigned: string[] = [];
     public constructor(room: Room){
         this.roomName = room.name;
     }

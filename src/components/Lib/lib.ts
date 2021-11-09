@@ -309,6 +309,7 @@ export function InitRoomMemory(room: Room, roomName: string) {
     rm.minerTasks = [];
     rm.energySources = [];
     rm.containerPositions = [];
+    rm.extensionIdsAssigned = [];
     rm.desiredBuilders = Config.MAX_BUILDERS;
     rm.techLevel = 0;
 
@@ -371,6 +372,46 @@ export function InitRoomMemory(room: Room, roomName: string) {
   }
 
 /**
+ * Get the  Energy avaiable in the Romm
+ * @export getRoomEnergyLevel
+ * @param {M.RoomMemory} rm The Romm Memory
+ * @param {Room} room The Room
+ * @return {*}  {number} The Level as number
+ */
+export function getRoomEnergyLevel(rm: M.RoomMemory, room: Room): number {
+  // switch (room.controller.level)
+  // {
+  //     case 1: numExtensionToBuild = 0; break; // 300
+  //     case 2: numExtensionToBuild = 5; break; // 550
+  //     case 3: numExtensionToBuild = 10; break; // 800
+  //     case 4: numExtensionToBuild = 20; break; // 1300
+  //     case 5: numExtensionToBuild = 30; break;
+  //     case 6: numExtensionToBuild = 40; break;
+  //     case 7: numExtensionToBuild = 50; break;
+  //     case 8: numExtensionToBuild = 60; break;
+  // }
+
+  if (rm.techLevel <= 4 && room.energyAvailable < 550) {
+    return 1;
+  }
+  else if (room.energyCapacityAvailable < 800) {
+    return 2;
+  } else {
+    return 3;
+  }
+}
+
+/**
+ * Remove assigned ExtId
+ * @export removeAssignedExt
+ * @param {string} targetId The Id of the Extension
+ * @param {M.RoomMemory} rm The Room Memory
+ */
+export function removeAssignedExt(targetId: string, rm: M.RoomMemory) {
+  _.remove(rm.extensionIdsAssigned, (ext: string) => ext === targetId);
+}
+
+/**
  *
  * Get the First Spawn
  * @export getFirstSpawn
@@ -418,7 +459,8 @@ export function getTechLevel(room: Room, rm: M.RoomMemory, numExtensionToBuild: 
     // Tech level 1 = building miners
     // Tech level 2 = building containers
     // Tech level 3 = building builders
-    // Tech level 4 = ?
+    // Tech level 4 = building extensions
+    // Tech Level 5 = ?
     let extensions = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_EXTENSION } }) as StructureExtension[];
     let TLCreeps = room.find(FIND_MY_CREEPS);
     let TLBuilders = _.filter(TLCreeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
@@ -428,7 +470,7 @@ export function getTechLevel(room: Room, rm: M.RoomMemory, numExtensionToBuild: 
     let TLContainers = _.filter(TLStruct, (structure) => structure.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
 
 
-    if (TLMiners.length < rm.minerTasks.length - 1){
+    if (TLMiners.length < rm.minerTasks.length - 2){
       return 1;
     }
 
@@ -436,7 +478,7 @@ export function getTechLevel(room: Room, rm: M.RoomMemory, numExtensionToBuild: 
       return 2;
     }
 
-    if (TLBuilders.length < rm.desiredBuilders - 1){
+    if (TLBuilders.length < rm.desiredBuilders - 2){
       return 3;
     }
 

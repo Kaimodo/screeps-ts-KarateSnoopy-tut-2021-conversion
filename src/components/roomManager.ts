@@ -110,6 +110,7 @@ Profiler.registerFN(run, 'run(Creep)');
         }
     }
     rm.techLevel = RLib.getTechLevel(room, rm, numExtensionToBuild);
+    rm.energyLevel = RLib.getRoomEnergyLevel(rm, room);
     rm.buildsThisTick = 0;
 
     if(Game.time % 10 === 0){
@@ -148,11 +149,23 @@ function buildMissingCreeps(room: Room, rm: M.RoomMemory)
         //     bodyParts = [WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE];
         // }
 
+        switch (rm.energyLevel) {
+            case 1: bodyParts = [WORK, WORK, CARRY, MOVE]; break; // 300
+            case 2: bodyParts = [WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE]; break; // 550
+            default:
+            case 3: bodyParts = [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE]; break; // 6x100,3x50=750
+        }
         RLib.tryToSpawnCreep(inactiveSpawns, bodyParts, M.CreepRoles.ROLE_MINER, rm);
     }
     if (rm.techLevel >= 3){
         if(builders.length < rm.desiredBuilders){
-            bodyParts = [WORK, WORK, CARRY, MOVE];
+            // bodyParts = [WORK, WORK, CARRY, MOVE];
+            switch (rm.energyLevel) {
+                case 1: bodyParts = [WORK, CARRY, CARRY, MOVE]; break; // 250
+                case 2: bodyParts = [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE]; break; // 550;
+                default:
+                case 3: bodyParts = [WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE]; break; // 750;
+            }
             RLib.tryToSpawnCreep(inactiveSpawns, bodyParts, M.CreepRoles.ROLE_BUILDER, rm);
         }
     }

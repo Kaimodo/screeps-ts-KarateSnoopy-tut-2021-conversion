@@ -84,14 +84,29 @@ Profiler.registerFN(run, 'run(Creep)');
     extensions = _.filter(structures, (structure) => structure.structureType === STRUCTURE_EXTENSION) as StructureExtension[];
     notRoadNeedingRepair = _.filter(structures, (structure) => {
         if (structure.structureType !== STRUCTURE_ROAD){
-            const hitsToRepair = structure.hitsMax - structure.hits;
-            if (hitsToRepair > structure.hitsMax * 0.25) {
-                return true;
+            if (structure.structureType === STRUCTURE_WALL) {
+                const hitsToRepair = rm.desiredWallHitPoints - structure.hits;
+                //if (hitsToRepair > rm.desiredWallHitPoints * 0.25)
+                if (hitsToRepair > 0) {
+                    log.debug("Wall>0" + hitsToRepair + "|" + structure.structureType )
+                    return true
+                }
+            } else if (structure.structureType === STRUCTURE_RAMPART) {
+                const hitsToRepair = rm.desiredWallHitPoints - structure.hits;
+                if (hitsToRepair > rm.desiredWallHitPoints * 0.25) {
+                    log.debug("Ramp>0" + hitsToRepair + "|" + structure.structureType )
+                    return true;
+                }
+            } else {
+                const hitsToRepair = structure.hitsMax - structure.hits;
+                if (hitsToRepair > structure.hitsMax * 0.25) {
+                    log.debug("Else>0" + hitsToRepair + "|" + structure.structureType )
+                    return true;
+                }
             }
         }
         return false;
     }) as Structure[];
-
     // constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
     constructionSites = _.sortBy(constructionSites, (constructionSite: ConstructionSite) => constructionSite.id);
     notRoadNeedingRepair = _.sortBy(notRoadNeedingRepair, (struct: Structure) => struct.id);
@@ -116,8 +131,11 @@ Profiler.registerFN(run, 'run(Creep)');
     if(Game.time % 10 === 0){
         RLib.buildExtension(rm, room, numExtensionToBuild);
     }
+    if (Game.time % 50 === 0){
+        rm.extensionIdsAssigned = [];
+    }
 
-    log.info(`[${Inscribe.color(`TL=${rm.techLevel} | Mem=${M.gm().memVersion}/${M.MemoryVersion} | M=${miners.length}/${rm.minerTasks.length} | B=${builders.length}/${rm.desiredBuilders} | S=${structures.length} | Con=${containers.length}/${rm.containerPositions.length} | Ext=${extensions.length}/${numExtensionToBuild} | Rep=${notRoadNeedingRepair.length}`, "skyblue")}]`);
+    log.info(`[${Inscribe.color(`TL=${rm.techLevel} | Mem=${M.gm().memVersion}/${M.MemoryVersion} | M=${miners.length}/${rm.minerTasks.length} | B=${builders.length}/${rm.desiredBuilders} | S=${structures.length} | Con=${containers.length}/${rm.containerPositions.length} | Ext=${extensions.length}/${numExtensionToBuild} | Rep=${notRoadNeedingRepair.length} | E=${rm.extensionIdsAssigned.length}`, "skyblue")}]`);
 }
  Profiler.registerFN(_scanRoom, '_scanRoom');
 

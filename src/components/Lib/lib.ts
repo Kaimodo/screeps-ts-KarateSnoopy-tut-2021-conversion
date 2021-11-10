@@ -184,7 +184,7 @@ export function buildExtension(rm: M.RoomMemory, room: Room, numExtensionToBuild
                 log.info(`ERROR: created extension at ${roomPos} ${errCode}`);
             }
         } else {
-            log.info(`ERROR: coudln't create more extensions`);
+            log.info(`ERROR: couldn't create more extensions`);
         }
     }
 }
@@ -312,6 +312,7 @@ export function InitRoomMemory(room: Room, roomName: string) {
     rm.extensionIdsAssigned = [];
     rm.desiredBuilders = Config.MAX_BUILDERS;
     rm.techLevel = 0;
+    rm.desiredWallHitPoints = 100000;
 
     let taskIdNum = 0;
 
@@ -372,9 +373,9 @@ export function InitRoomMemory(room: Room, roomName: string) {
   }
 
 /**
- * Get the  Energy avaiable in the Romm
+ * Get the  Energy available in the Room
  * @export getRoomEnergyLevel
- * @param {M.RoomMemory} rm The Romm Memory
+ * @param {M.RoomMemory} rm The Room Memory
  * @param {Room} room The Room
  * @return {*}  {number} The Level as number
  */

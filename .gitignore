@@ -19,10 +19,13 @@
 screeps.json
 
 # Screeps Visual
-Screeps-Visual.html
+# Screeps-Visual.html
 
 # ScreepsServer data from integration tests
 /server
+
+# SVG Files
+*.svg
 
 # Numerous always-ignore extensions
 *.diff

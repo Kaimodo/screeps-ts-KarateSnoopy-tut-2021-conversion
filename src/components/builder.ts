@@ -177,11 +177,13 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory
         }
     }else{
         if (room.controller !== undefined && room.controller.ticksToDowngrade > 1000){
-            if(repairIfCan(room, creep, cm)){
+            if(repairIfCan(room, creep, cm, rm)){
+                //creep.say(`Repairing`);
                 return;
             }
 
             if(buildIfCan(room, creep, cm)){
+                //creep.say(`Building`);
                 return;
             }
 
@@ -208,25 +210,65 @@ function useEnergy(room: Room, creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory
  * @param {Room} room The Room of the Target
  * @param {Creep} creep The repairing Creep
  * @param {M.CreepMemory} cm The Memory of this Creep
+ * @param {M.RoomMemory} rm The Room Memory
  * @return {*}  {boolean} Can/not repair
  */
-function repairIfCan(room: Room, creep: Creep, cm: M.CreepMemory): boolean{
+function repairIfCan(room: Room, creep: Creep, cm: M.CreepMemory, rm: M.RoomMemory): boolean{
     let repairTarget: Structure | undefined;
 
     let structures: Structure[] = room.find<StructureContainer>(FIND_STRUCTURES);
-    let notRoadNeedingRepair: Structure[] = _.filter(structures, (structure) => {
+    let notRoadNeedingRepair = _.filter(structures, (structure) => {
         if (structure.structureType !== STRUCTURE_ROAD){
-            const hitsToRepair = structure.hitsMax - structure.hits;
-            if (hitsToRepair > structure.hitsMax * 0.25) {
-                return true;
+            if (structure.structureType === STRUCTURE_WALL) {
+                const hitsToRepair = rm.desiredWallHitPoints - structure.hits;
+                //if (hitsToRepair > rm.desiredWallHitPoints * 0.25)
+                if (hitsToRepair > 0) {
+                    log.debug("Wall>0" + hitsToRepair + "|" + structure.structureType )
+                    return true
+                }
+            } else if (structure.structureType === STRUCTURE_RAMPART) {
+                const hitsToRepair = rm.desiredWallHitPoints - structure.hits;
+                if (hitsToRepair > rm.desiredWallHitPoints * 0.25) {
+                    log.debug("Ramp>0" + hitsToRepair + "|" + structure.structureType )
+                    return true;
+                }
+            } else {
+                const hitsToRepair = structure.hitsMax - structure.hits;
+                if (hitsToRepair > structure.hitsMax * 0.25) {
+                    log.debug("Else>0" + hitsToRepair + "|" + structure.structureType )
+                    return true;
+                }
             }
         }
         return false;
     }) as Structure[];
+    notRoadNeedingRepair = _.sortBy(notRoadNeedingRepair, (struct: Structure) => struct.id);
     // log.debug(`${M.l(cm)}Not Roads to repair: ${notRoadNeedingRepair}`);
 
-    if (notRoadNeedingRepair.length > 0){
-        repairTarget = notRoadNeedingRepair[0];
+    if (cm.repairTargetId !== undefined){
+
+        const repairTargetId: Id<Structure> = cm.repairTargetId as Id<Structure>;
+        repairTarget = Game.getObjectById(repairTargetId) as Structure;
+        if (repairTarget === null) {
+            cm.repairTargetId = undefined;
+            return false;
+        }
+        else if (repairTarget.structureType === STRUCTURE_RAMPART) {
+            if (repairTarget.hits > rm.desiredWallHitPoints) {
+                cm.repairTargetId = undefined;
+                return false;
+            }
+        } else {
+            cm.repairTargetId = undefined;
+            return false;
+        }
+    } else {
+        if (notRoadNeedingRepair.length > 0) {
+            repairTarget = notRoadNeedingRepair[0];
+            if (repairTarget.structureType === STRUCTURE_RAMPART &&  repairTarget.hits < rm.desiredWallHitPoints) {
+                cm.repairTargetId = repairTarget.id;
+            }
+        }
     }
     if (repairTarget === undefined){
         const structuresUnderFeet = creep.pos.lookFor(LOOK_STRUCTURES) as Structure[];

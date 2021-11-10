@@ -147,7 +147,7 @@ function dropOffEnergy(room: Room, creep: Creep, rm: M.RoomMemory, minerTask: M.
      let MinerCreeps = room.find(FIND_MY_CREEPS);
      let MinerBuilders = _.filter(MinerCreeps, (creep) => M.cm(creep).role === M.CreepRoles.ROLE_BUILDER);
      // log.debug("M.MinCont: "+ MinerContainers.length + " | M.MinBuild: " + MinerBuilders.length);
-     if (minerTask.sourceContainer === undefined || rm.techLevel < 3){
+     if (minerTask.sourceContainer === undefined || rm.techLevel < 3 || MinerBuilders.length === 0){
         log.info(`${M.l(cm)}no source container or low tech`);
         if (MinerContainers.length === rm.containerPositions.length && rm.techLevel >= 3){
             log.info(`${M.l(cm)}room has containers and tech 3+`);

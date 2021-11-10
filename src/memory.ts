@@ -1,7 +1,7 @@
 import * as Inscribe from "screeps-inscribe";
 import {log} from "./tools/logger/logger";
 // Memory and other Things
-export let MemoryVersion = 5;
+export let MemoryVersion = 8;
 
 /**
  * @export number Set the current Game MemoryVersion
@@ -100,6 +100,7 @@ export class RoomMemory {
     public containerPositions!: PositionPlusTarget[];
     public techLevel: number = 0;
     public buildsThisTick: number = 0;
+    public desiredWallHitPoints: number = 0;
     public spawnText?: string;
     public spawnTextId?: number | string;
     public extensionIdsAssigned: string[] = [];
@@ -161,6 +162,7 @@ export interface CreepMemory {
     assignedContainerId?: string;
     assignedTargetId?: string;
     isUpgradingController: boolean;
+    repairTargetId?: string;
 }
 
 

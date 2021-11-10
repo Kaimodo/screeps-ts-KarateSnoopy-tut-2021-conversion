@@ -12,6 +12,7 @@ import {ENABLE_DEBUG_MODE} from "../config";
  * @return {*}  {void}
  */
 export function run(room: Room, creep: Creep, rm: M.RoomMemory): void {
+
     const creepMem = M.cm(creep);
     if (creepMem.assignedMineTaskId === undefined) {
         log.info(`${M.l(creepMem)}has no mining task`);

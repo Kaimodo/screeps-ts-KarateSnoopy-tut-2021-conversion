@@ -59,7 +59,8 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP-13 -> done  | 09.11.2021
 - EP-14 -> done  | 09.11.2021
 - EP-15 -> done  | 10.11.2021
-- EP-16 -> WIP
+- EP-16 -> Just the Setup of the Server etc
+- EP-17 and on: -> Your work here:
 
 ### Info Current Project Issues/errors
 
@@ -87,6 +88,7 @@ i had a lot of trouble so always use the last Commit of a specific Episode, sry 
 - EP-13 End: It took me again some try and Error cause the Original Code forced some Trouble. But Builders now build Extensions and Roads as they should.
 - EP-14 End: If u just update to the new Code and load it up you'll get a undefined error when pushing rm.extensionIdsAssigned. Just change the Memory-Version to get rid of it. Via ingame: cc.setMem(number) or direct in the Code in the Memory.ts.
 - EP-15 End: I had trouble again cause of the notRoadNeedingRepair variable which again is exported Empty from RoomManager. To keep it simple i just copied the Code from scanRoom to the builder. its not pretty, but it works.
+- EP-End: The Code should work correct. Anyway, i watched the last Commits of KarateSnoopy and he changed a lot compared to his last episode code. I think it's more easy to download his actual code and read it with your knowlege now, than rewrite all. There are LOTS of changes. Feel free to go from here on your own. either rewrite the code using his last commit, or download it, or try to go on from here on your own. GLHF.
 
 ### Helper
 
